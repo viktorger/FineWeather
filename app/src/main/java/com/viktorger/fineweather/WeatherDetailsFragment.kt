@@ -5,20 +5,18 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.navArgs
 import com.viktorger.fineweather.databinding.FragmentWeatherDetailsBinding
 
 class WeatherDetailsFragment : Fragment() {
-    private var day: Int = 0
+
+    val args: WeatherDetailsFragmentArgs by navArgs()
 
     private var _binding: FragmentWeatherDetailsBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        arguments?.let {
-            day = it.getInt("day")
-        }
     }
 
     override fun onCreateView(
@@ -32,7 +30,8 @@ class WeatherDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.tvWeatherdetails.text = day.toString()
+        val day = args.day
+        binding.tvWeatherdetails.text = day.dayPosition.toString()
 
 
     }
@@ -47,14 +46,6 @@ class WeatherDetailsFragment : Fragment() {
         enum class Day(val dayPosition: Int) {
             Today(0),
             Tomorrow(1)
-        }
-
-        fun newInstance(day: Day): WeatherDetailsFragment{
-            val args = Bundle()
-            args.putInt("day", day.dayPosition)
-            val fragment = WeatherDetailsFragment()
-            fragment.arguments = args
-            return fragment
         }
     }
 }

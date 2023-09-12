@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_graph"
+    app:startDestination="@id/weatherDetailsFragment">
+
+
+
+    <fragment
+        android:id="@+id/dailyWeatherFragment"
+        android:name="com.viktorger.fineweather.DailyWeatherFragment"
+        android:label="fragment_daily_weather"
+        tools:layout="@layout/fragment_daily_weather" />
+
+    <fragment
+        android:id="@+id/weatherDetailsFragment"
+        android:name="com.viktorger.fineweather.WeatherDetailsFragment"
+        android:label="fragment_weather_details"
+        tools:layout="@layout/fragment_weather_details" >
+        <argument
+            android:name="day"
+            app:argType="com.viktorger.fineweather.WeatherDetailsFragment$Companion$Day"
+            android:defaultValue="Today" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/locationSearchFragment"
+        android:name="com.viktorger.fineweather.LocationSearchFragment"
+        android:label="fragment_location_search"
+        tools:layout="@layout/fragment_location_search" />
+
+    <action
+        android:id="@+id/action_global_weatherDetailsFragment"
+        app:destination="@id/weatherDetailsFragment">
+    </action>
+</navigation>

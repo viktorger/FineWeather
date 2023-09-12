@@ -8,8 +8,11 @@ espresso-core = "3.5.1"
 appcompat = "1.6.1"
 material = "1.9.0"
 constraintlayout = "2.1.4"
+navigation-ui-ktx = "2.7.2"
 
 [libraries]
+androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigation-ui-ktx" }
+androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigation-ui-ktx" }
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-test-ext-junit" }

@@ -4,4 +4,14 @@ plugins {
     alias(libs.plugins.androidApplication) apply false
     alias(libs.plugins.kotlinAndroid) apply false
 }
+
+buildscript {
+    repositories {
+        google()
+    }
+    dependencies {
+        val nav_version = "2.7.2"
+        classpath("androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version")
+    }
+}
 true // Needed to make the Suppress annotation work for the plugins block
