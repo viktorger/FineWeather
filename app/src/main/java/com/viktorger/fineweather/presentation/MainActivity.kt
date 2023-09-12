@@ -1,14 +1,13 @@
-package com.viktorger.fineweather
+package com.viktorger.fineweather.presentation
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.core.os.bundleOf
-import androidx.navigation.NavController
-import androidx.navigation.Navigation
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import com.viktorger.fineweather.databinding.ActivityMainBinding
 import com.google.android.material.tabs.TabLayout
+import com.viktorger.fineweather.MainGraphDirections
+import com.viktorger.fineweather.R
+import com.viktorger.fineweather.presentation.weatherdetails.WeatherDetailsFragment
 
 class MainActivity : AppCompatActivity() {
     private var _binding: ActivityMainBinding? = null

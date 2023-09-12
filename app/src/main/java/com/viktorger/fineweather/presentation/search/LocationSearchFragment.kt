@@ -1,22 +1,23 @@
-package com.viktorger.fineweather
+package com.viktorger.fineweather.presentation.search
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.viktorger.fineweather.databinding.FragmentDailyWeatherBinding
+import com.viktorger.fineweather.databinding.FragmentLocationSearchBinding
 
-class DailyWeatherFragment : Fragment() {
 
-    private var _binding: FragmentDailyWeatherBinding? = null
+class LocationSearchFragment : Fragment() {
+
+    private var _binding: FragmentLocationSearchBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentDailyWeatherBinding.inflate(inflater)
+        _binding = FragmentLocationSearchBinding.inflate(inflater)
         return binding.root
     }
 

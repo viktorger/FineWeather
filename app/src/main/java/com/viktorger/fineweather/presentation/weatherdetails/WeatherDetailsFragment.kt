@@ -1,4 +1,4 @@
-package com.viktorger.fineweather
+package com.viktorger.fineweather.presentation.weatherdetails
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
