@@ -42,10 +42,18 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.navigation.fragment.ktx)
-    implementation(libs.androidx.navigation.ui.ktx)
     implementation(project(":domain"))
     implementation(project(":data"))
+
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
+
+    // Networking
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.okhttp)
+    implementation(libs.logging.interceptor)
+    implementation(libs.glide)
 
     implementation(libs.core.ktx)
     implementation(libs.appcompat)

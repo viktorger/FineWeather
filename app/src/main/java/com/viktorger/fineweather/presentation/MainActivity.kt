@@ -7,12 +7,11 @@ import com.viktorger.fineweather.databinding.ActivityMainBinding
 import com.google.android.material.tabs.TabLayout
 import com.viktorger.fineweather.MainGraphDirections
 import com.viktorger.fineweather.R
-import com.viktorger.fineweather.presentation.weatherdetails.WeatherDetailsFragment
+import com.viktorger.fineweather.presentation.model.DayEnum
 
 class MainActivity : AppCompatActivity() {
     private var _binding: ActivityMainBinding? = null
     private val binding get() = _binding!!
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,14 +29,13 @@ class MainActivity : AppCompatActivity() {
                     when (it.position) {
                         0 -> {
                             val action = MainGraphDirections
-                                .actionGlobalWeatherDetailsFragment(
-                                    WeatherDetailsFragment.Companion.Day.Tomorrow
-                                )
-
+                                .actionGlobalWeatherDetailsFragment(DayEnum.Today)
                             navController.navigate(action)
                         }
                         1 -> {
-                            navController.navigate(R.id.locationSearchFragment)
+                            val action = MainGraphDirections
+                                .actionGlobalWeatherDetailsFragment(DayEnum.Tomorrow)
+                            navController.navigate(action)
                         }
                         2 -> {
                             navController.navigate(R.id.dailyWeatherFragment)
@@ -54,9 +52,7 @@ class MainActivity : AppCompatActivity() {
         binding.tlMain.getTabAt(0)?.select()
 
         val action = MainGraphDirections
-            .actionGlobalWeatherDetailsFragment(
-                WeatherDetailsFragment.Companion.Day.Tomorrow
-            )
+            .actionGlobalWeatherDetailsFragment(DayEnum.Today)
         navController.navigate(action)
     }
 }
