@@ -1,11 +1,9 @@
 package com.viktorger.fineweather.presentation.dailyweather
 
 import android.annotation.SuppressLint
-import android.text.Layout
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.bumptech.glide.Glide
 import com.viktorger.fineweather.databinding.ItemDailyweatherBinding
 import com.viktorger.fineweather.domain.model.ForecastDayModel
@@ -20,8 +18,8 @@ class DailyAdapter : RecyclerView.Adapter<DailyAdapter.ViewHolder>() {
         fun bind(forecastDayModel: ForecastDayModel) {
             binding.tvItemdailyDate.text = forecastDayModel.date
             binding.tvItemdailyStatus.text = forecastDayModel.status
-            binding.tvItemdailyMaxtemp.text = forecastDayModel.maxtemp_c.toString()
-            binding.tvItemdailyMintemp.text = forecastDayModel.mintemp_c.toString()
+            binding.tvItemdailyMaxtemp.text = forecastDayModel.maxTempC.toString()
+            binding.tvItemdailyMintemp.text = forecastDayModel.minTempC.toString()
 
             Glide.with(binding.root)
                 .load(forecastDayModel.condition.icon)

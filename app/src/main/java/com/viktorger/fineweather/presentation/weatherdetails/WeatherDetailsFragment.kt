@@ -1,7 +1,6 @@
 package com.viktorger.fineweather.presentation.weatherdetails
 
 import android.os.Bundle
-import android.util.TypedValue
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -62,7 +61,7 @@ class WeatherDetailsFragment : Fragment() {
                         binding.tvDetailsStatus.text = "${forecastDay.status}\u00B0C"
                     }
 
-                    binding.tvDetailsMinmax.text = "min ${forecastDay.mintemp_c}°C • max ${forecastDay.maxtemp_c.toInt()}°C "
+                    binding.tvDetailsMinmax.text = "min ${forecastDay.minTempC}°C • max ${forecastDay.maxTempC.toInt()}°C "
 
                     binding.tvDetailsDate.text = forecastDay.date
                     Glide.with(this)
@@ -70,7 +69,7 @@ class WeatherDetailsFragment : Fragment() {
                         .into(binding.imageView)
 
                     binding.linechartDetails.setTempTimeSource(
-                        forecastDay.hour.map { hourModel -> hourModel.temp_c },
+                        forecastDay.hour.map { hourModel -> hourModel.tempC },
                         forecastDay.hour.map { hourModel -> hourModel.time },
                         forecastDay.hour.map { hourModel -> hourModel.condition.icon }
                     )

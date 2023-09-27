@@ -55,6 +55,9 @@ dependencies {
     implementation(libs.logging.interceptor)
     implementation(libs.glide)
 
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.core)
+
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
     implementation(libs.material)

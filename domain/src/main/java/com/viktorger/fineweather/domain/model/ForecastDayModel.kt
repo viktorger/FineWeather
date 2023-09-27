@@ -2,10 +2,10 @@ package com.viktorger.fineweather.domain.model
 
 data class ForecastDayModel(
     val date: String,
-    val maxtemp_c: Int,
-    val mintemp_c: Int,
+    val maxTempC: Int,
+    val minTempC: Int,
     val status: String,
-    val daily_chance_of_rain: Float,
+    val dailyChanceOfRain: Float,
     val condition: ConditionModel,
     val hour: List<HourModel>,
 )
@@ -13,9 +13,9 @@ data class ForecastDayModel(
 
 data class HourModel(
     val time: String,
-    val temp_c: Int,
+    val tempC: Int,
     val condition: ConditionModel,
-    val chance_of_rain: Float
+    val chanceOfRain: Float
 )
 
 data class ConditionModel(

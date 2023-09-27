@@ -15,3 +15,7 @@ kotlin{
     jvmToolchain(8)
 }
 
+dependencies {
+    implementation(libs.kotlinx.coroutines.core)
+}
+

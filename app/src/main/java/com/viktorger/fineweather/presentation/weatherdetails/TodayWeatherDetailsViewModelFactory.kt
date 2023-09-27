@@ -3,7 +3,7 @@ package com.viktorger.fineweather.presentation.weatherdetails
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.viktorger.fineweather.data.repository.interfaces.ForecastRepositoryImpl
-import com.viktorger.fineweather.data.source.retrofit.ForecastApi
+import com.viktorger.fineweather.data.storage.retrofit.ForecastApi
 import com.viktorger.fineweather.domain.interfaces.ForecastRepository
 import com.viktorger.fineweather.domain.usecase.GetWeatherTodayUseCase
 import com.viktorger.fineweather.domain.usecase.GetWeatherTomorrowUseCase

@@ -2,6 +2,7 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinAndroid)
+    kotlin("kapt")
 }
 
 android {
@@ -34,11 +35,21 @@ android {
 }
 
 dependencies {
+    implementation(project(":domain"))
+
+    // Networking
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
-    implementation(project(":domain"))
+
+    // Room
+    implementation(libs.androidx.room.runtime)
+    kapt(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.core)
 
     implementation(libs.core.ktx)
     implementation(libs.appcompat)

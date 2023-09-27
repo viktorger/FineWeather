@@ -3,7 +3,7 @@ package com.viktorger.fineweather.data.repository.interfaces
 import android.util.Log
 import com.viktorger.fineweather.data.model.ForecastResponse
 import com.viktorger.fineweather.data.model.Hour
-import com.viktorger.fineweather.data.source.retrofit.ForecastApi
+import com.viktorger.fineweather.data.storage.retrofit.ForecastApi
 import com.viktorger.fineweather.domain.interfaces.ForecastRepository
 import com.viktorger.fineweather.domain.model.ConditionModel
 import com.viktorger.fineweather.domain.model.ForecastDayModel
@@ -79,11 +79,6 @@ class ForecastRepositoryImpl(private val forecastApi: ForecastApi) : ForecastRep
             return ResultModel.Error(-1, "Network error")
         }
 
-        forecastNetworkResponse.body()!!.forecast.forecastday.forEach {
-            Log.d("repo_method", it.date)
-
-        }
-
         val forecastResultModel: ResultModel<List<ForecastDayModel>> =
             if (forecastNetworkResponse.isSuccessful) {
                 val dayList = mutableListOf<ForecastDayModel>()
@@ -116,6 +111,9 @@ class ForecastRepositoryImpl(private val forecastApi: ForecastApi) : ForecastRep
         val forecastToday = forecastNetworkResponseBody.forecast.forecastday[0]
         val forecastTomorrow = forecastNetworkResponseBody.forecast.forecastday[1]
         val hours = mutableListOf<Hour>()
+
+        Log.d("GETSUCC", forecastToday.hour.joinToString { it.temp_c.toString() })
+        Log.d("GETSUCC", forecastTomorrow.hour.joinToString { it.temp_c.toString() })
 
         var firstToday: Int = 0
         while (firstToday < 24 && forecastNetworkResponseBody
@@ -155,9 +153,9 @@ class ForecastRepositoryImpl(private val forecastApi: ForecastApi) : ForecastRep
         with(forecastResponse.forecast.forecastday[index]) {
             return ForecastDayModel(
                 date = getTimeString(dateFormat, forecastResponse.location.localtime_epoch),
-                maxtemp_c = this.day.maxtemp_c.roundToInt(),
-                mintemp_c = this.day.mintemp_c.roundToInt(),
-                daily_chance_of_rain = this.day.daily_chance_of_rain,
+                maxTempC = this.day.maxtemp_c.roundToInt(),
+                minTempC = this.day.mintemp_c.roundToInt(),
+                dailyChanceOfRain = this.day.daily_chance_of_rain,
                 condition =  ConditionModel(
                     text = forecastResponse.current.condition.text,
                     icon = "https:${forecastResponse.current.condition.icon}",
@@ -166,12 +164,12 @@ class ForecastRepositoryImpl(private val forecastApi: ForecastApi) : ForecastRep
                 hour = todayHours.map {
                     HourModel(
                         time = getTimeString(timeFormat, it.time_epoch),
-                        temp_c = it.temp_c.roundToInt(),
+                        tempC = it.temp_c.roundToInt(),
                         condition = ConditionModel(
                             text = it.condition.text,
                             icon = "https:${it.condition.icon}"
                         ),
-                        chance_of_rain = it.chance_of_rain
+                        chanceOfRain = it.chance_of_rain
                     )
                 }
             )
@@ -190,9 +188,9 @@ class ForecastRepositoryImpl(private val forecastApi: ForecastApi) : ForecastRep
         with(forecastResponse.forecast.forecastday[index]) {
             return ForecastDayModel(
                 date = getTimeString(dateFormat, this.date_epoch),
-                maxtemp_c = this.day.maxtemp_c.roundToInt(),
-                mintemp_c = this.day.mintemp_c.roundToInt(),
-                daily_chance_of_rain = this.day.daily_chance_of_rain,
+                maxTempC = this.day.maxtemp_c.roundToInt(),
+                minTempC = this.day.mintemp_c.roundToInt(),
+                dailyChanceOfRain = this.day.daily_chance_of_rain,
                 condition =  ConditionModel(
                     text = this.day.condition.text,
                     icon = "https:${this.day.condition.icon}",
@@ -201,12 +199,12 @@ class ForecastRepositoryImpl(private val forecastApi: ForecastApi) : ForecastRep
                 hour = this.hour.map {
                     HourModel(
                         time = getTimeString(timeFormat, it.time_epoch),
-                        temp_c = it.temp_c.roundToInt(),
+                        tempC = it.temp_c.roundToInt(),
                         condition = ConditionModel(
                             text = it.condition.text,
                             icon = "https:${it.condition.icon}"
                         ),
-                        chance_of_rain = it.chance_of_rain
+                        chanceOfRain = it.chance_of_rain
                     )
                 }
             )

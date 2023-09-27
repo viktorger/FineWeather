@@ -1,4 +1,4 @@
-package com.viktorger.fineweather.data.source.retrofit
+package com.viktorger.fineweather.data.storage.retrofit
 
 import com.viktorger.fineweather.data.model.ForecastResponse
 import retrofit2.Response
