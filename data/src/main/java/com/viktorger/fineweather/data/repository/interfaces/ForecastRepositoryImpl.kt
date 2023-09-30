@@ -1,218 +1,197 @@
 package com.viktorger.fineweather.data.repository.interfaces
 
-import android.util.Log
-import com.viktorger.fineweather.data.model.ForecastResponse
-import com.viktorger.fineweather.data.model.Hour
-import com.viktorger.fineweather.data.storage.retrofit.ForecastApi
+import com.viktorger.fineweather.data.model.ForecastDayDataModel
+import com.viktorger.fineweather.data.storage.ForecastLocalDataSource
+import com.viktorger.fineweather.data.storage.ForecastRemoteDataSource
+import com.viktorger.fineweather.data.storage.retrofit.Forecast
 import com.viktorger.fineweather.domain.interfaces.ForecastRepository
 import com.viktorger.fineweather.domain.model.ConditionModel
 import com.viktorger.fineweather.domain.model.ForecastDayModel
 import com.viktorger.fineweather.domain.model.HourModel
 import com.viktorger.fineweather.domain.model.ResultModel
-import retrofit2.Response
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import java.text.SimpleDateFormat
 import java.util.Locale
-import java.util.TimeZone
-import kotlin.math.roundToInt
+import kotlin.math.abs
 
-class ForecastRepositoryImpl(private val forecastApi: ForecastApi) : ForecastRepository {
+class ForecastRepositoryImpl(
+    private val forecastLocalDataSource: ForecastLocalDataSource,
+    private val forecastRemoteDataSource: ForecastRemoteDataSource
+) : ForecastRepository {
 
-    // Pls make better code :)
-    override suspend fun getWeatherDay(day: Int): ResultModel<ForecastDayModel> {
-        val forecastNetworkResponse: Response<ForecastResponse> = try {
-            forecastApi.getForecast(
-                "1858f254dc844b8fa6a224832232608",
-                "auto:ip",
-                day + 1
-            )
-        } catch (e: Exception) {
-            return ResultModel.Error(-1, "Network error")
-        }
+    override suspend fun getWeatherToday(): Flow<ResultModel<ForecastDayModel>> = flow {
+        val localResult = forecastLocalDataSource.getForecastToday()
 
-        val forecastResultModel: ResultModel<ForecastDayModel> =
-            if (forecastNetworkResponse.isSuccessful) {
-                ResultModel.Success(
-                    dayForecastResponseToDomain(forecastNetworkResponse.body()!!, day)
-                )
-            } else {
-                ResultModel.Error(
-                    forecastNetworkResponse.code(),
-                    forecastNetworkResponse.errorBody()?.string()
-                )
-            }
+        if (localResult is ResultModel.Error
+            || isNeededToBeUpdated((localResult as ResultModel.Success).data)) {
+            val forecastNetworkResult = forecastRemoteDataSource.getForecastToday()
+            val forecastResultModel: ResultModel<ForecastDayModel>
 
-        return forecastResultModel
-    }
-
-    override suspend fun getWeatherToday(): ResultModel<ForecastDayModel> {
-        val forecastNetworkResponse: Response<ForecastResponse> = try {
-            forecastApi.getForecast(
-                "1858f254dc844b8fa6a224832232608",
-                "auto:ip",
-                2
-            )
-        } catch (e: Exception) {
-            return ResultModel.Error(-1, "Network error")
-        }
-
-        val forecastResultModel: ResultModel<ForecastDayModel> =
-            if (forecastNetworkResponse.isSuccessful) {
-                getSuccessWithHourListFromCurrentTime(forecastNetworkResponse)
-            } else {
-                ResultModel.Error(
-                    forecastNetworkResponse.code(),
-                    forecastNetworkResponse.errorBody()?.string()
-                )
-            }
-
-        return forecastResultModel
-    }
-
-    override suspend fun getWeatherTenDays(): ResultModel<List<ForecastDayModel>> {
-        val forecastNetworkResponse: Response<ForecastResponse> = try {
-            forecastApi.getForecast(
-                "1858f254dc844b8fa6a224832232608",
-                "auto:ip",
-                10
-            )
-        } catch (e: Exception) {
-            return ResultModel.Error(-1, "Network error")
-        }
-
-        val forecastResultModel: ResultModel<List<ForecastDayModel>> =
-            if (forecastNetworkResponse.isSuccessful) {
-                val dayList = mutableListOf<ForecastDayModel>()
-                val forecastNetworkResponseBody = forecastNetworkResponse.body()!!
-                for (day in forecastNetworkResponseBody.forecast.forecastday.indices) {
-                    val forecastDayModel = dayForecastResponseToDomain(
-                        forecastNetworkResponseBody,
-                        day
-                    )
-                    dayList.add(forecastDayModel)
+            when (forecastNetworkResult) {
+                is ResultModel.Success -> {
+                    forecastResultModel = forecastResponseToDomainSuccess(forecastNetworkResult)
                 }
 
-                ResultModel.Success(
-                    dayList
-                )
-            } else {
-                ResultModel.Error(
-                    forecastNetworkResponse.code(),
-                    forecastNetworkResponse.errorBody()?.string()
-                )
+                else -> {
+                    // Network result is nothing but Error
+                    forecastResultModel = forecastResponseToDomainError(forecastNetworkResult)
+                }
             }
 
-        return forecastResultModel
+            emit(forecastResultModel)
+        } else {
+            // Local result is Success
+            val forecastResultModel: ResultModel<ForecastDayModel> =
+                forecastResponseToDomainSuccess(localResult)
+
+            emit(forecastResultModel)
+        }
+    }
+        .handleErrors()
+
+    override suspend fun getWeatherTomorrow(): Flow<ResultModel<ForecastDayModel>> = flow {
+        val localResult = forecastLocalDataSource.getForecastTomorrow()
+
+        if (localResult is ResultModel.Error
+            || isNeededToBeUpdated((localResult as ResultModel.Success).data)) {
+
+            val forecastNetworkResult = forecastRemoteDataSource.getForecastTomorrow()
+            val forecastResultModel: ResultModel<ForecastDayModel>
+
+            when (forecastNetworkResult) {
+                is ResultModel.Success -> {
+                    forecastResultModel = forecastResponseToDomainSuccess(forecastNetworkResult)
+                }
+
+                else -> {
+                    // Network result is nothing but Error
+                    forecastResultModel = forecastResponseToDomainError(forecastNetworkResult)
+                }
+            }
+
+            emit(forecastResultModel)
+        } else {
+            // Local result is Success
+            val forecastResultModel: ResultModel<ForecastDayModel> =
+                forecastResponseToDomainSuccess(localResult)
+
+            emit(forecastResultModel)
+        }
+    }
+        .handleErrors()
+
+    override suspend fun getWeatherTenDays(): Flow<ResultModel<List<ForecastDayModel>>> = flow {
+        val localResult = forecastLocalDataSource.getForecastTenDays()
+
+        if (localResult is ResultModel.Error
+            || isNeededToBeUpdated((localResult as ResultModel.Success).data[0])) {
+            val forecastNetworkResult = forecastRemoteDataSource.getForecastTenDays()
+            val forecastResultModel: ResultModel<List<ForecastDayModel>>
+
+            when (forecastNetworkResult) {
+                is ResultModel.Success -> {
+                    forecastResultModel = ResultModel.Success(
+                        forecastNetworkResult.data.map { forecastDayToDomain(it) }
+                    )
+                }
+
+                else -> {
+                    // Network result is nothing but Error
+                    forecastResultModel = forecastResponseToDomainError(forecastNetworkResult)
+                }
+            }
+
+            emit(forecastResultModel)
+        } else {
+            // Local result is Success
+            val forecastResultModel: ResultModel<List<ForecastDayModel>> =
+                ResultModel.Success(
+                    (localResult as ResultModel.Success).data.map { forecastDayToDomain(it) }
+                )
+
+            emit(forecastResultModel)
+        }
+    }
+        .handleErrors()
+
+    private fun <T> Flow<ResultModel<T>>.handleErrors()
+            : Flow<ResultModel<T>> = flow {
+        try {
+            collect { value -> emit(value) }
+        } catch (e: Throwable) {
+            emit(ResultModel.Error(-1, "Network error"))
+        }
     }
 
-    private fun getSuccessWithHourListFromCurrentTime(
-        forecastNetworkResponse: Response<ForecastResponse>
-    ): ResultModel.Success<ForecastDayModel> {
-        val forecastNetworkResponseBody = forecastNetworkResponse.body()!!
-        val forecastToday = forecastNetworkResponseBody.forecast.forecastday[0]
-        val forecastTomorrow = forecastNetworkResponseBody.forecast.forecastday[1]
-        val hours = mutableListOf<Hour>()
+    private fun <T, K> forecastResponseToDomainError(
+        forecastNetworkResponse: ResultModel<T>
+    ): ResultModel.Error<K> {
+        val forecastNetworkError = forecastNetworkResponse as ResultModel.Error
 
-        Log.d("GETSUCC", forecastToday.hour.joinToString { it.temp_c.toString() })
-        Log.d("GETSUCC", forecastTomorrow.hour.joinToString { it.temp_c.toString() })
-
-        var firstToday: Int = 0
-        while (firstToday < 24 && forecastNetworkResponseBody
-                .location.localtime_epoch > forecastToday.hour[firstToday].time_epoch
-        ) {
-            firstToday++
-        }
-        firstToday--
-
-        var hoursLeft = 24
-        for (curIndex in firstToday..forecastToday.hour.lastIndex) {
-            hours.add(forecastToday.hour[curIndex])
-            hoursLeft--
-        }
-
-        var curIndex = 0
-        while (hoursLeft > 0) {
-            hours.add(forecastTomorrow.hour[curIndex])
-            curIndex++
-            hoursLeft--
-        }
-
-        return ResultModel.Success(
-            todayForecastResponseToDomain(forecastNetworkResponse.body()!!, 0, hours)
+        return ResultModel.Error(
+            forecastNetworkError.code,
+            forecastNetworkError.message
         )
     }
 
-    private fun todayForecastResponseToDomain(
-        forecastResponse: ForecastResponse, index: Int, todayHours: List<Hour>
-    ): ForecastDayModel {
-        val timeFormat = SimpleDateFormat("HH:mm", Locale.US)
-        timeFormat.timeZone = TimeZone.getTimeZone(forecastResponse.location.tz_id)
+    private fun forecastResponseToDomainSuccess(
+        forecastNetworkResponse: ResultModel<ForecastDayDataModel>
+    ): ResultModel<ForecastDayModel> {
+        val forecastNetworkSuccess = forecastNetworkResponse as ResultModel.Success
 
-        val dateFormat = SimpleDateFormat("dd MMMM, HH:mm", Locale.US)
-        dateFormat.timeZone = TimeZone.getTimeZone(forecastResponse.location.tz_id)
-
-        with(forecastResponse.forecast.forecastday[index]) {
-            return ForecastDayModel(
-                date = getTimeString(dateFormat, forecastResponse.location.localtime_epoch),
-                maxTempC = this.day.maxtemp_c.roundToInt(),
-                minTempC = this.day.mintemp_c.roundToInt(),
-                dailyChanceOfRain = this.day.daily_chance_of_rain,
-                condition =  ConditionModel(
-                    text = forecastResponse.current.condition.text,
-                    icon = "https:${forecastResponse.current.condition.icon}",
-                ),
-                status = forecastResponse.current.temp_c.roundToInt().toString(),
-                hour = todayHours.map {
-                    HourModel(
-                        time = getTimeString(timeFormat, it.time_epoch),
-                        tempC = it.temp_c.roundToInt(),
-                        condition = ConditionModel(
-                            text = it.condition.text,
-                            icon = "https:${it.condition.icon}"
-                        ),
-                        chanceOfRain = it.chance_of_rain
-                    )
-                }
-            )
-        }
+        return ResultModel.Success(
+            forecastDayToDomain(forecastNetworkSuccess.data)
+        )
     }
 
-    private fun dayForecastResponseToDomain(
-        forecastResponse: ForecastResponse, index: Int
-    ): ForecastDayModel {
-        val timeFormat = SimpleDateFormat("HH:mm", Locale.US)
-        timeFormat.timeZone = TimeZone.getTimeZone(forecastResponse.location.tz_id)
-
-        val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale.US)
-        dateFormat.timeZone = TimeZone.getTimeZone(forecastResponse.location.tz_id)
-
-        with(forecastResponse.forecast.forecastday[index]) {
-            return ForecastDayModel(
-                date = getTimeString(dateFormat, this.date_epoch),
-                maxTempC = this.day.maxtemp_c.roundToInt(),
-                minTempC = this.day.mintemp_c.roundToInt(),
-                dailyChanceOfRain = this.day.daily_chance_of_rain,
-                condition =  ConditionModel(
-                    text = this.day.condition.text,
-                    icon = "https:${this.day.condition.icon}",
+    private fun forecastDayToDomain(
+        forecastDayDataModel: ForecastDayDataModel,
+    ): ForecastDayModel = ForecastDayModel(
+        date = forecastDayDataModel.date,
+        maxTempC = forecastDayDataModel.maxTempC,
+        minTempC = forecastDayDataModel.minTempC,
+        dailyChanceOfRain = forecastDayDataModel.dailyChanceOfRain,
+        condition = ConditionModel(
+            text = forecastDayDataModel.condition.text,
+            icon = forecastDayDataModel.condition.icon,
+        ),
+        status = forecastDayDataModel.status,
+        hour = forecastDayDataModel.hour.map {
+            HourModel(
+                time = it.time,
+                tempC = it.tempC,
+                condition = ConditionModel(
+                    text = it.condition.text,
+                    icon = it.condition.icon
                 ),
-                status = this.day.condition.text,
-                hour = this.hour.map {
-                    HourModel(
-                        time = getTimeString(timeFormat, it.time_epoch),
-                        tempC = it.temp_c.roundToInt(),
-                        condition = ConditionModel(
-                            text = it.condition.text,
-                            icon = "https:${it.condition.icon}"
-                        ),
-                        chanceOfRain = it.chance_of_rain
-                    )
-                }
+                chanceOfRain = it.chanceOfRain
             )
         }
+    )
+
+    /*
+    * Logic for fetching once a day
+    *
+    * We check if the day numbers are the same and if the difference in time is not
+    * more than 1 day. If so, fetch the data
+    */
+    private suspend fun isNeededToBeUpdated(forecastDay: ForecastDayDataModel): Boolean {
+        val simpleDateFormat = SimpleDateFormat("dd", Locale.US)
+        val secondsInADay = 86_400L
+
+        val localInfo = forecastRemoteDataSource.getLocationInfo()
+        if (localInfo is ResultModel.Success) {
+            val internetData = localInfo.data
+
+            return !(forecastDay.location == internetData.name
+                    && abs(forecastDay.lastUpdate - internetData.lastUpdate) < secondsInADay
+                    && getTimeString(simpleDateFormat, forecastDay.lastUpdate) == getTimeString(simpleDateFormat, internetData.lastUpdate))
+        }
+        return false
     }
 
     private fun getTimeString(format: SimpleDateFormat, time: Int): String {
         return format.format(time * 1000L)
     }
-
 }

@@ -1,4 +1,4 @@
-package com.viktorger.fineweather.data.model
+package com.viktorger.fineweather.data.storage.retrofit
 
 data class ForecastResponse(
     val location: Location,
@@ -7,6 +7,8 @@ data class ForecastResponse(
 )
 
 data class Location(
+    val name: String,
+    val country: String,
     val tz_id: String,
     val localtime_epoch: Int
 )

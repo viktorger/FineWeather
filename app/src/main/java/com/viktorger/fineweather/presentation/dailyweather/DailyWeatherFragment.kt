@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import com.viktorger.fineweather.databinding.FragmentDailyWeatherBinding
 import com.viktorger.fineweather.domain.model.ResultModel
@@ -13,7 +14,7 @@ import com.viktorger.fineweather.domain.model.ResultModel
 class DailyWeatherFragment : Fragment() {
 
     val adapter = DailyAdapter()
-    private val vm: DailyViewModel by viewModels { DailyViewModelFactory() }
+    private val vm: DailyViewModel by viewModels { DailyViewModelFactory(requireContext()) }
 
     private var _binding: FragmentDailyWeatherBinding? = null
     private val binding get() = _binding!!
@@ -32,6 +33,7 @@ class DailyWeatherFragment : Fragment() {
         vm.fetchTenDays()
 
         binding.rvDaily.adapter = adapter
+        val currentTimestamp = System.currentTimeMillis()
     }
 
     private fun initListeners() {
@@ -39,6 +41,12 @@ class DailyWeatherFragment : Fragment() {
             when (it) {
                 is ResultModel.Success -> {
                     adapter.updateList(it.data)
+                }
+                is ResultModel.Error -> {
+                    Toast.makeText(requireContext(),
+                        "${it.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
                 else -> {
                 }

@@ -1,9 +1,14 @@
 package com.viktorger.fineweather.presentation.weatherdetails
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.room.Room
 import com.viktorger.fineweather.data.repository.interfaces.ForecastRepositoryImpl
+import com.viktorger.fineweather.data.storage.ForecastLocalDataSource
+import com.viktorger.fineweather.data.storage.ForecastRemoteDataSource
 import com.viktorger.fineweather.data.storage.retrofit.ForecastApi
+import com.viktorger.fineweather.data.storage.room.LocalDatabase
 import com.viktorger.fineweather.domain.interfaces.ForecastRepository
 import com.viktorger.fineweather.domain.usecase.GetWeatherTodayUseCase
 import com.viktorger.fineweather.domain.usecase.GetWeatherTomorrowUseCase
@@ -12,7 +17,9 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class TodayWeatherDetailsViewModelFactory : ViewModelProvider.Factory {
+class TodayWeatherDetailsViewModelFactory(
+    private val context: Context
+) : ViewModelProvider.Factory {
 
     private val forecastApi: ForecastApi by lazy {
         val interceptor = HttpLoggingInterceptor()
@@ -31,8 +38,24 @@ class TodayWeatherDetailsViewModelFactory : ViewModelProvider.Factory {
         retrofit.create(ForecastApi::class.java)
     }
 
+    private val localDatabase: LocalDatabase by lazy {
+            Room.databaseBuilder(
+                context,
+                LocalDatabase::class.java,
+                "localDb"
+            ).build()
+    }
+
+    private val forecastLocalDataSource: ForecastLocalDataSource by lazy {
+        ForecastLocalDataSource(localDatabase)
+    }
+
+    private val forecastRemoteDataSource: ForecastRemoteDataSource by lazy {
+        ForecastRemoteDataSource(forecastApi)
+    }
+
     private val forecastRepository: ForecastRepository by lazy {
-        ForecastRepositoryImpl(forecastApi)
+        ForecastRepositoryImpl(forecastLocalDataSource, forecastRemoteDataSource)
     }
 
     private val getWeatherTodayUseCase: GetWeatherTodayUseCase by lazy {

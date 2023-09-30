@@ -28,12 +28,15 @@ class WeatherDetailsViewModel(
 
         ioScope.launch {
 
-            val forecastDayModel: ResultModel<ForecastDayModel> = when (dayEnum) {
-                DayEnum.Today -> getWeatherTodayUseCase()
-                else -> getWeatherTomorrowUseCase()
+            when (dayEnum) {
+                DayEnum.Today -> getWeatherTodayUseCase().collect {
+                    _dayForecastLiveData.postValue(it)
+                }
+                else -> getWeatherTomorrowUseCase().collect {
+                    _dayForecastLiveData.postValue(it)
+                }
             }
 
-            _dayForecastLiveData.postValue(forecastDayModel)
         }
     }
 

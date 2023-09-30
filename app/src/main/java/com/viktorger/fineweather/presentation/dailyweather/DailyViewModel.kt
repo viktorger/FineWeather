@@ -21,9 +21,9 @@ class DailyViewModel(private val getWeatherTenDaysUseCase: GetWeatherTenDaysUseC
         _forecastListLiveData.value = ResultModel.Loading
 
         ioScope.launch {
-            val forecastDayModelList: ResultModel<List<ForecastDayModel>> =
-                getWeatherTenDaysUseCase()
-            _forecastListLiveData.postValue(forecastDayModelList)
+            getWeatherTenDaysUseCase().collect {
+                _forecastListLiveData.postValue(it)
+            }
         }
     }
 }

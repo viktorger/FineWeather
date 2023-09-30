@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
@@ -19,7 +20,7 @@ class WeatherDetailsFragment : Fragment() {
     private var _binding: FragmentWeatherDetailsBinding? = null
     private val binding get() = _binding!!
 
-    private val vm: WeatherDetailsViewModel by viewModels { TodayWeatherDetailsViewModelFactory() }
+    private val vm: WeatherDetailsViewModel by viewModels { TodayWeatherDetailsViewModelFactory(requireContext()) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,7 +78,10 @@ class WeatherDetailsFragment : Fragment() {
                 }
                 is ResultModel.Error -> {
                     binding.pbDetails.visibility = View.GONE
-
+                    Toast.makeText(requireContext(),
+                        "${it.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
                 is ResultModel.Loading -> {
                     binding.pbDetails.visibility = View.VISIBLE

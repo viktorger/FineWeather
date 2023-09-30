@@ -57,6 +57,7 @@ dependencies {
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.room.ktx)
 
     implementation(libs.core.ktx)
     implementation(libs.appcompat)

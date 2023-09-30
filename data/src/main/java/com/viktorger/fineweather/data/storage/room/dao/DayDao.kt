@@ -11,8 +11,8 @@ import com.viktorger.fineweather.data.storage.room.relationships.DayWithHours
 @Dao
 interface DayDao {
     @Transaction
-    @Query("SELECT * FROM day WHERE day.day = :day")
-    suspend fun getDayWithHour(day: Int): List<DayWithHours>
+    @Query("SELECT * FROM day WHERE day.day in (:day)")
+    suspend fun getDayWithHour(vararg day: Int): List<DayWithHours>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDay(dayEntity: DayEntity)
