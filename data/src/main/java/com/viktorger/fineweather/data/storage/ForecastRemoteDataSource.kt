@@ -10,6 +10,8 @@ import com.viktorger.fineweather.data.storage.retrofit.ForecastResponse
 import com.viktorger.fineweather.data.storage.retrofit.Hour
 import com.viktorger.fineweather.data.storage.retrofit.LocationResponse
 import com.viktorger.fineweather.domain.model.ResultModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -20,18 +22,22 @@ class ForecastRemoteDataSource(
     private val forecastApi: ForecastApi
 ) {
     suspend fun getLocationInfo(): ResultModel<LocationDataModel> {
-        val location = safeApiCall { forecastApi.getLocationInfo(
-            "1858f254dc844b8fa6a224832232608",
-            "auto:ip"
-        ) }
+        val location = safeApiCall {
+            forecastApi.getLocationInfo(
+                "1858f254dc844b8fa6a224832232608",
+                "auto:ip"
+            )
+        }
         return when (location) {
             is ResultModel.Success -> ResultModel.Success(
                 locationToData(location.data)
             )
+
             is ResultModel.Error -> ResultModel.Error(
                 code = location.code,
                 message = location.message
             )
+
             else -> ResultModel.Error(
                 code = -1,
                 message = "Unknown error"
@@ -40,7 +46,7 @@ class ForecastRemoteDataSource(
     }
 
     private fun locationToData(locationNetworkResponse: LocationResponse)
-    : LocationDataModel = with(locationNetworkResponse.location) {
+            : LocationDataModel = with(locationNetworkResponse.location) {
         LocationDataModel(
             name = "$name, $country",
             tzId = tz_id,
@@ -49,20 +55,24 @@ class ForecastRemoteDataSource(
     }
 
     private suspend fun getForecastToday(): ResultModel<ForecastDayDataModel> {
-        val forecastResponse: ResultModel<ForecastResponse>  = safeApiCall { forecastApi.getForecast(
-            "1858f254dc844b8fa6a224832232608",
-            "auto:ip",
-            DayEnum.Tomorrow.dayPos + 1
-        ) }
+        val forecastResponse: ResultModel<ForecastResponse> = safeApiCall {
+            forecastApi.getForecast(
+                "1858f254dc844b8fa6a224832232608",
+                "auto:ip",
+                DayEnum.Tomorrow.dayPos + 1
+            )
+        }
 
         return when (forecastResponse) {
             is ResultModel.Success -> ResultModel.Success(
                 getForecastDayModelWithHourListFromCurrentTime(forecastResponse.data)
             )
+
             is ResultModel.Error -> ResultModel.Error(
                 code = forecastResponse.code,
                 message = forecastResponse.message
             )
+
             else -> ResultModel.Error(
                 code = -1,
                 message = "Unknown error"
@@ -71,20 +81,24 @@ class ForecastRemoteDataSource(
     }
 
     private suspend fun getForecastTomorrow(): ResultModel<ForecastDayDataModel> {
-        val forecastResponse: ResultModel<ForecastResponse>  = safeApiCall { forecastApi.getForecast(
-            "1858f254dc844b8fa6a224832232608",
-            "auto:ip",
-            DayEnum.Tomorrow.dayPos + 1
-        ) }
+        val forecastResponse: ResultModel<ForecastResponse> = safeApiCall {
+            forecastApi.getForecast(
+                "1858f254dc844b8fa6a224832232608",
+                "auto:ip",
+                DayEnum.Tomorrow.dayPos + 1
+            )
+        }
 
         return when (forecastResponse) {
             is ResultModel.Success -> ResultModel.Success(
                 dayForecastResponseToData(forecastResponse.data, DayEnum.Tomorrow.dayPos)
             )
+
             is ResultModel.Error -> ResultModel.Error(
                 code = forecastResponse.code,
                 message = forecastResponse.message
             )
+
             else -> ResultModel.Error(
                 code = -1,
                 message = "Unknown error"
@@ -93,11 +107,13 @@ class ForecastRemoteDataSource(
     }
 
     private suspend fun getForecastTenDays(): ResultModel<List<ForecastDayDataModel>> {
-        val forecastResponse: ResultModel<ForecastResponse> = safeApiCall { forecastApi.getForecast(
-            "1858f254dc844b8fa6a224832232608",
-            "auto:ip",
-            DayEnum.TenDays.dayPos + 1
-        ) }
+        val forecastResponse: ResultModel<ForecastResponse> = safeApiCall {
+            forecastApi.getForecast(
+                "1858f254dc844b8fa6a224832232608",
+                "auto:ip",
+                DayEnum.TenDays.dayPos + 1
+            )
+        }
 
         return when (forecastResponse) {
             is ResultModel.Success -> {
@@ -115,10 +131,12 @@ class ForecastRemoteDataSource(
                     dayList
                 )
             }
+
             is ResultModel.Error -> ResultModel.Error(
                 code = forecastResponse.code,
                 message = forecastResponse.message
             )
+
             else -> ResultModel.Error(
                 code = -1,
                 message = "Unknown error"
@@ -133,7 +151,8 @@ class ForecastRemoteDataSource(
 
         if (today is ResultModel.Success
             && tomorrow is ResultModel.Success
-            && tenDays is ResultModel.Success) {
+            && tenDays is ResultModel.Success
+        ) {
 
             val dayList = mutableListOf<ForecastDayDataModel>()
             dayList.add(today.data)
@@ -155,7 +174,8 @@ class ForecastRemoteDataSource(
         }
     }
 
-    private suspend fun <T> safeApiCall(apiCall: suspend () -> Response<T>): ResultModel<T> =
+    private suspend fun <T> safeApiCall(apiCall: suspend () -> Response<T>)
+            : ResultModel<T> = withContext(Dispatchers.IO) {
         try {
             val apiCallResult = apiCall()
 
@@ -174,6 +194,8 @@ class ForecastRemoteDataSource(
                 "Network error"
             )
         }
+    }
+
 
     private fun getForecastDayModelWithHourListFromCurrentTime(
         forecastNetworkResponseBody: ForecastResponse
@@ -223,7 +245,7 @@ class ForecastRemoteDataSource(
                 maxTempC = this.day.maxtemp_c.roundToInt(),
                 minTempC = this.day.mintemp_c.roundToInt(),
                 dailyChanceOfRain = this.day.daily_chance_of_rain,
-                condition =  ConditionDataModel(
+                condition = ConditionDataModel(
                     text = forecastResponse.current.condition.text,
                     icon = "https:${forecastResponse.current.condition.icon}",
                 ),
@@ -261,7 +283,7 @@ class ForecastRemoteDataSource(
                 maxTempC = this.day.maxtemp_c.roundToInt(),
                 minTempC = this.day.mintemp_c.roundToInt(),
                 dailyChanceOfRain = this.day.daily_chance_of_rain,
-                condition =  ConditionDataModel(
+                condition = ConditionDataModel(
                     text = this.day.condition.text,
                     icon = "https:${this.day.condition.icon}",
                 ),

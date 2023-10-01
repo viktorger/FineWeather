@@ -19,10 +19,27 @@ class WeatherDetailsViewModel(
     private val getWeatherTomorrowUseCase: GetWeatherTomorrowUseCase
 ) : ViewModel() {
 
-    private val ioScope = CoroutineScope(Job() + Dispatchers.IO)
+    private val defaultScope = CoroutineScope(Job() + Dispatchers.Default)
     private val _dayForecastLiveData = MutableLiveData<ResultModel<ForecastDayModel>>()
     val dayForecastLiveData: LiveData<ResultModel<ForecastDayModel>> = _dayForecastLiveData
 
+    private var fetchJob: Job? = null
+
+    private fun getForecast(dayEnum: DayEnum, forceUpdate: Boolean) {
+        fetchJob?.cancel()
+
+        fetchJob = defaultScope.launch {
+            when (dayEnum) {
+                DayEnum.Today -> getWeatherTodayUseCase(forceUpdate).collect {
+                    _dayForecastLiveData.postValue(it)
+                }
+
+                else -> getWeatherTomorrowUseCase(forceUpdate).collect {
+                    _dayForecastLiveData.postValue(it)
+                }
+            }
+        }
+    }
 
     fun loadForecast(dayEnum: DayEnum) {
         _dayForecastLiveData.value = ResultModel.Loading
@@ -32,21 +49,9 @@ class WeatherDetailsViewModel(
         getForecast(dayEnum, true)
     }
 
-    private fun getForecast(dayEnum: DayEnum, forceUpdate: Boolean) = ioScope.launch {
-        when (dayEnum) {
-            DayEnum.Today -> getWeatherTodayUseCase(forceUpdate).collect {
-                _dayForecastLiveData.postValue(it)
-            }
-
-            else -> getWeatherTomorrowUseCase(forceUpdate).collect {
-                _dayForecastLiveData.postValue(it)
-            }
-        }
-    }
-
     override fun onCleared() {
         super.onCleared()
-        ioScope.cancel()
+        defaultScope.cancel()
     }
 
 }

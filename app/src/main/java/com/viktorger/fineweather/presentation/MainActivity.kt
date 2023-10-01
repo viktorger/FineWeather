@@ -2,6 +2,9 @@ package com.viktorger.fineweather.presentation
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import com.viktorger.fineweather.databinding.ActivityMainBinding
@@ -24,7 +27,7 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment
         val navController = navHostFragment.navController
 
-        binding.tlMain.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener{
+        binding.tlMain.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 tab?.let {
                     when (it.position) {
@@ -36,6 +39,7 @@ class MainActivity : AppCompatActivity() {
                                 navOptions = NavOptions.Builder().setLaunchSingleTop(true).build()
                             )
                         }
+
                         1 -> {
                             val action = MainGraphDirections
                                 .actionGlobalWeatherDetailsFragment(DayEnum.Tomorrow)
@@ -44,6 +48,7 @@ class MainActivity : AppCompatActivity() {
                                 navOptions = NavOptions.Builder().setLaunchSingleTop(true).build()
                             )
                         }
+
                         2 -> {
                             navController.navigate(
                                 R.id.dailyWeatherFragment,
@@ -65,6 +70,10 @@ class MainActivity : AppCompatActivity() {
         val action = MainGraphDirections
             .actionGlobalWeatherDetailsFragment(DayEnum.Today)
         navController.navigate(action)
+
+        onBackPressedDispatcher.addCallback(this) {
+            finish()
+        }
     }
 }
 

@@ -7,4 +7,10 @@
     </style>
 
     <style name="Theme.FineWeather" parent="Base.Theme.FineWeather" />
+    <style name="Theme.FineWeather.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.FineWeather.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="Theme.FineWeather.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

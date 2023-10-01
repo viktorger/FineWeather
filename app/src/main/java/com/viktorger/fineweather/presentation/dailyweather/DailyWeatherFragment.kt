@@ -12,7 +12,7 @@ import com.viktorger.fineweather.domain.model.ResultModel
 
 class DailyWeatherFragment : Fragment() {
 
-    val adapter = DailyAdapter()
+    private val adapter = DailyAdapter()
     private val vm: DailyViewModel by viewModels { DailyViewModelFactory(requireContext()) }
 
     private var _binding: FragmentDailyWeatherBinding? = null

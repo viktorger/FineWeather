@@ -11,6 +11,8 @@ import com.viktorger.fineweather.data.storage.room.entities.DayEntity
 import com.viktorger.fineweather.data.storage.room.entities.HourEntity
 import com.viktorger.fineweather.data.storage.room.relationships.DayWithHours
 import com.viktorger.fineweather.domain.model.ResultModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class ForecastLocalDataSource(
     private val localDatabase: LocalDatabase
@@ -18,7 +20,9 @@ class ForecastLocalDataSource(
 
     suspend fun getForecastToday(): ResultModel<ForecastDayDataModel> {
         val dayDao = localDatabase.dayDao()
-        val localResult: List<DayWithHours> = dayDao.getDayWithHour(DayEnum.Today.dayPos)
+        val localResult: List<DayWithHours> = withContext(Dispatchers.IO) {
+            dayDao.getDayWithHour(DayEnum.Today.dayPos)
+        }
 
         return if (localResult.isEmpty()) {
             ResultModel.Error(
@@ -34,7 +38,9 @@ class ForecastLocalDataSource(
 
     suspend fun getForecastTomorrow(): ResultModel<ForecastDayDataModel> {
         val dayDao = localDatabase.dayDao()
-        val localResult: List<DayWithHours> = dayDao.getDayWithHour(DayEnum.Tomorrow.dayPos)
+        val localResult: List<DayWithHours> = withContext(Dispatchers.IO) {
+            dayDao.getDayWithHour(DayEnum.Tomorrow.dayPos)
+        }
 
         return if (localResult.isEmpty()) {
             ResultModel.Error(
@@ -51,9 +57,11 @@ class ForecastLocalDataSource(
     suspend fun getForecastTenDays(): ResultModel<List<ForecastDayDataModel>> {
         val dayDao = localDatabase.dayDao()
         val range = TenDaysEnum.First.dayPos..TenDaysEnum.Last.dayPos
-        val localResult: List<DayWithHours> = dayDao.getDayWithHour(
-            *range.toList().toIntArray()
-        )
+        val localResult: List<DayWithHours> = withContext(Dispatchers.IO) {
+            dayDao.getDayWithHour(
+                *range.toList().toIntArray()
+            )
+        }
 
         return if (localResult.isEmpty()) {
             ResultModel.Error(
@@ -78,9 +86,11 @@ class ForecastLocalDataSource(
 
         val dayWithHours = dataToLocalData(forecastDay, day)
 
-        dayDao.insertDay(dayWithHours.day)
-        hourDao.deleteHoursByDay(day)
-        hourDao.insertHour(dayWithHours.hours)
+        withContext(Dispatchers.IO) {
+            dayDao.insertDay(dayWithHours.day)
+            hourDao.deleteHoursByDay(day)
+            hourDao.insertHour(dayWithHours.hours)
+        }
     }
 
     suspend fun saveForecastDayList(forecastDays: List<ForecastDayDataModel>) {
