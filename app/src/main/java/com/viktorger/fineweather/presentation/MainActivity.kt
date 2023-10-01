@@ -2,6 +2,7 @@ package com.viktorger.fineweather.presentation
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import com.viktorger.fineweather.databinding.ActivityMainBinding
 import com.google.android.material.tabs.TabLayout
@@ -30,15 +31,25 @@ class MainActivity : AppCompatActivity() {
                         0 -> {
                             val action = MainGraphDirections
                                 .actionGlobalWeatherDetailsFragment(DayEnum.Today)
-                            navController.navigate(action)
+                            navController.navigate(
+                                action,
+                                navOptions = NavOptions.Builder().setLaunchSingleTop(true).build()
+                            )
                         }
                         1 -> {
                             val action = MainGraphDirections
                                 .actionGlobalWeatherDetailsFragment(DayEnum.Tomorrow)
-                            navController.navigate(action)
+                            navController.navigate(
+                                action,
+                                navOptions = NavOptions.Builder().setLaunchSingleTop(true).build()
+                            )
                         }
                         2 -> {
-                            navController.navigate(R.id.dailyWeatherFragment)
+                            navController.navigate(
+                                R.id.dailyWeatherFragment,
+                                null,
+                                navOptions = NavOptions.Builder().setLaunchSingleTop(true).build()
+                            )
                         }
                     }
                 }

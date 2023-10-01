@@ -8,8 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 class GetWeatherTomorrowUseCase(private val forecastRepository: ForecastRepository) {
 
-    suspend operator fun invoke(): Flow<ResultModel<ForecastDayModel>> {
-        return forecastRepository.getWeatherTomorrow()
-    }
+    operator fun invoke(forceUpdate: Boolean): Flow<ResultModel<ForecastDayModel>> =
+        forecastRepository.getWeatherTomorrow(forceUpdate)
 
 }

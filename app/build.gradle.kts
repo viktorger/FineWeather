@@ -59,6 +59,9 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.room.ktx)
 
+    // Swipe-to-refresh
+    implementation(libs.androidx.swiperefreshlayout)
+
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
     implementation(libs.material)

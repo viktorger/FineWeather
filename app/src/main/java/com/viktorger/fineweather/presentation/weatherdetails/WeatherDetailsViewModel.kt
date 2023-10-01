@@ -23,20 +23,24 @@ class WeatherDetailsViewModel(
     private val _dayForecastLiveData = MutableLiveData<ResultModel<ForecastDayModel>>()
     val dayForecastLiveData: LiveData<ResultModel<ForecastDayModel>> = _dayForecastLiveData
 
-    fun loadWeather(dayEnum: DayEnum) {
+
+    fun loadForecast(dayEnum: DayEnum) {
         _dayForecastLiveData.value = ResultModel.Loading
+        getForecast(dayEnum, false)
+    }
+    fun updateForecast(dayEnum: DayEnum) {
+        getForecast(dayEnum, true)
+    }
 
-        ioScope.launch {
-
-            when (dayEnum) {
-                DayEnum.Today -> getWeatherTodayUseCase().collect {
-                    _dayForecastLiveData.postValue(it)
-                }
-                else -> getWeatherTomorrowUseCase().collect {
-                    _dayForecastLiveData.postValue(it)
-                }
+    private fun getForecast(dayEnum: DayEnum, forceUpdate: Boolean) = ioScope.launch {
+        when (dayEnum) {
+            DayEnum.Today -> getWeatherTodayUseCase(forceUpdate).collect {
+                _dayForecastLiveData.postValue(it)
             }
 
+            else -> getWeatherTomorrowUseCase(forceUpdate).collect {
+                _dayForecastLiveData.postValue(it)
+            }
         }
     }
 

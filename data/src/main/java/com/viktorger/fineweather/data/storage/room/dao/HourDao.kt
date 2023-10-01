@@ -9,8 +9,8 @@ import com.viktorger.fineweather.data.storage.room.entities.HourEntity
 @Dao
 interface HourDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertDay(hourEntity: HourEntity)
+    suspend fun insertHour(hourEntities: List<HourEntity>)
 
-    @Query("DELETE FROM hour WHERE time_epoch = :timeEpoch")
-    suspend fun deleteHoursByTimeEpoch(timeEpoch: Int)
+    @Query("DELETE FROM hour WHERE day = :day")
+    suspend fun deleteHoursByDay(day: Int)
 }

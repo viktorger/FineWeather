@@ -1,11 +1,13 @@
 package com.viktorger.fineweather.presentation.weatherdetails
 
+import android.annotation.SuppressLint
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
@@ -15,7 +17,7 @@ import com.viktorger.fineweather.presentation.model.DayEnum
 
 class WeatherDetailsFragment : Fragment() {
 
-    val args: WeatherDetailsFragmentArgs by navArgs()
+    private val args: WeatherDetailsFragmentArgs by navArgs()
 
     private var _binding: FragmentWeatherDetailsBinding? = null
     private val binding get() = _binding!!
@@ -35,22 +37,25 @@ class WeatherDetailsFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObservers()
 
         if (args.day != DayEnum.Nothing) {
-            vm.loadWeather(args.day)
+            vm.loadForecast(args.day)
         }
 
-
+        binding.srlDetails.setOnRefreshListener {
+            vm.updateForecast(args.day)
+        }
     }
 
     private fun initObservers() {
         vm.dayForecastLiveData.observe(viewLifecycleOwner) {
             when (it) {
                 is ResultModel.Success -> {
-                    binding.pbDetails.visibility = View.GONE
+                    stopLoadingAnims()
 
                     val forecastDay = it.data
 
@@ -77,18 +82,23 @@ class WeatherDetailsFragment : Fragment() {
 
                 }
                 is ResultModel.Error -> {
-                    binding.pbDetails.visibility = View.GONE
+                    stopLoadingAnims()
+
                     Toast.makeText(requireContext(),
                         "${it.message}",
                         Toast.LENGTH_LONG
-                    ).show()
-                }
+                    ).show() }
                 is ResultModel.Loading -> {
                     binding.pbDetails.visibility = View.VISIBLE
                 }
             }
 
         }
+    }
+
+    private fun stopLoadingAnims() {
+        binding.srlDetails.isRefreshing = false
+        binding.pbDetails.visibility = View.GONE
     }
 
     override fun onDestroyView() {

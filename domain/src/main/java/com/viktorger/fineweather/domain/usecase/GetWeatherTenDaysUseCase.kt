@@ -6,6 +6,6 @@ import com.viktorger.fineweather.domain.model.ResultModel
 import kotlinx.coroutines.flow.Flow
 
 class GetWeatherTenDaysUseCase(private val forecastRepository: ForecastRepository) {
-    suspend operator fun invoke(): Flow<ResultModel<List<ForecastDayModel>>> = forecastRepository
-        .getWeatherTenDays()
+    operator fun invoke(forceUpdate: Boolean): Flow<ResultModel<List<ForecastDayModel>>> =
+        forecastRepository.getWeatherTenDays(forceUpdate)
 }

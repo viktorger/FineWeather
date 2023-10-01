@@ -5,10 +5,11 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = "hour"
+    tableName = "hour",
+    primaryKeys = ["time", "day"]
 )
 data class HourEntity(
-    @PrimaryKey @ColumnInfo(name = "time_epoch") val timeEpoch: Int,
+    @ColumnInfo(name = "time_epoch") val timeEpoch: Int,
     val time: String,
     @ColumnInfo(name = "temp_c") val tempC: Int,
     @ColumnInfo(name = " chance_of_rain") val chanceOfRain: Float,

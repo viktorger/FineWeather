@@ -21,6 +21,7 @@ data class LocationDataModel (
 
 data class HourDataModel(
     val time: String,
+    val timeEpoch: Int,
     val tempC: Int,
     val condition: ConditionDataModel,
     val chanceOfRain: Float

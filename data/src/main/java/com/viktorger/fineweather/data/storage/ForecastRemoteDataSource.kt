@@ -20,19 +20,21 @@ class ForecastRemoteDataSource(
     private val forecastApi: ForecastApi
 ) {
     suspend fun getLocationInfo(): ResultModel<LocationDataModel> {
-        val locationNetworkResponse: Response<LocationResponse> = forecastApi.getLocationInfo(
+        val location = safeApiCall { forecastApi.getLocationInfo(
             "1858f254dc844b8fa6a224832232608",
             "auto:ip"
-        )
-
-        return if (locationNetworkResponse.isSuccessful) {
-            ResultModel.Success(
-                locationToData(locationNetworkResponse.body()!!)
+        ) }
+        return when (location) {
+            is ResultModel.Success -> ResultModel.Success(
+                locationToData(location.data)
             )
-        } else {
-            ResultModel.Error(
-                code = locationNetworkResponse.code(),
-                message = locationNetworkResponse.errorBody().toString()
+            is ResultModel.Error -> ResultModel.Error(
+                code = location.code,
+                message = location.message
+            )
+            else -> ResultModel.Error(
+                code = -1,
+                message = "Unknown error"
             )
         }
     }
@@ -40,65 +42,70 @@ class ForecastRemoteDataSource(
     private fun locationToData(locationNetworkResponse: LocationResponse)
     : LocationDataModel = with(locationNetworkResponse.location) {
         LocationDataModel(
-            name = name,
+            name = "$name, $country",
             tzId = tz_id,
             lastUpdate = localtime_epoch
         )
     }
 
-    suspend fun getForecastToday(): ResultModel<ForecastDayDataModel> {
-        val forecastNetworkResponse: Response<ForecastResponse> = forecastApi.getForecast(
+    private suspend fun getForecastToday(): ResultModel<ForecastDayDataModel> {
+        val forecastResponse: ResultModel<ForecastResponse>  = safeApiCall { forecastApi.getForecast(
             "1858f254dc844b8fa6a224832232608",
             "auto:ip",
             DayEnum.Tomorrow.dayPos + 1
-        )
+        ) }
 
-        return if (forecastNetworkResponse.isSuccessful) {
-            ResultModel.Success(
-                getForecastDayModelWithHourListFromCurrentTime(forecastNetworkResponse.body()!!)
+        return when (forecastResponse) {
+            is ResultModel.Success -> ResultModel.Success(
+                getForecastDayModelWithHourListFromCurrentTime(forecastResponse.data)
             )
-        } else {
-            ResultModel.Error(
-                code = forecastNetworkResponse.code(),
-                message = forecastNetworkResponse.errorBody().toString()
+            is ResultModel.Error -> ResultModel.Error(
+                code = forecastResponse.code,
+                message = forecastResponse.message
+            )
+            else -> ResultModel.Error(
+                code = -1,
+                message = "Unknown error"
             )
         }
     }
 
-    suspend fun getForecastTomorrow(): ResultModel<ForecastDayDataModel> {
-        val forecastNetworkResponse: Response<ForecastResponse> = forecastApi.getForecast(
+    private suspend fun getForecastTomorrow(): ResultModel<ForecastDayDataModel> {
+        val forecastResponse: ResultModel<ForecastResponse>  = safeApiCall { forecastApi.getForecast(
             "1858f254dc844b8fa6a224832232608",
             "auto:ip",
             DayEnum.Tomorrow.dayPos + 1
-        )
+        ) }
 
-        return if (forecastNetworkResponse.isSuccessful) {
-            ResultModel.Success(
-                dayForecastResponseToData(forecastNetworkResponse.body()!!, DayEnum.Tomorrow.dayPos)
+        return when (forecastResponse) {
+            is ResultModel.Success -> ResultModel.Success(
+                dayForecastResponseToData(forecastResponse.data, DayEnum.Tomorrow.dayPos)
             )
-        } else {
-            ResultModel.Error(
-                code = forecastNetworkResponse.code(),
-                message = forecastNetworkResponse.errorBody().toString()
+            is ResultModel.Error -> ResultModel.Error(
+                code = forecastResponse.code,
+                message = forecastResponse.message
+            )
+            else -> ResultModel.Error(
+                code = -1,
+                message = "Unknown error"
             )
         }
     }
 
-    suspend fun getForecastTenDays(): ResultModel<List<ForecastDayDataModel>> {
-        val forecastNetworkResponse: Response<ForecastResponse> = forecastApi.getForecast(
+    private suspend fun getForecastTenDays(): ResultModel<List<ForecastDayDataModel>> {
+        val forecastResponse: ResultModel<ForecastResponse> = safeApiCall { forecastApi.getForecast(
             "1858f254dc844b8fa6a224832232608",
             "auto:ip",
             DayEnum.TenDays.dayPos + 1
-        )
+        ) }
 
-        val forecastResultModel: ResultModel<List<ForecastDayDataModel>> =
-            if (forecastNetworkResponse.isSuccessful) {
+        return when (forecastResponse) {
+            is ResultModel.Success -> {
                 val dayList = mutableListOf<ForecastDayDataModel>()
-                val forecastNetworkResponseBody = forecastNetworkResponse.body()!!
 
-                for (day in forecastNetworkResponseBody.forecast.forecastday.indices) {
+                for (day in forecastResponse.data.forecast.forecastday.indices) {
                     val forecastDayModel = dayForecastResponseToData(
-                        forecastNetworkResponseBody,
+                        forecastResponse.data,
                         day
                     )
                     dayList.add(forecastDayModel)
@@ -107,15 +114,66 @@ class ForecastRemoteDataSource(
                 ResultModel.Success(
                     dayList
                 )
-            } else {
-                ResultModel.Error(
-                    code = forecastNetworkResponse.code(),
-                    message = forecastNetworkResponse.errorBody()?.string()
-                )
+            }
+            is ResultModel.Error -> ResultModel.Error(
+                code = forecastResponse.code,
+                message = forecastResponse.message
+            )
+            else -> ResultModel.Error(
+                code = -1,
+                message = "Unknown error"
+            )
+        }
+    }
+
+    suspend fun getEveryWeather(): ResultModel<List<ForecastDayDataModel>> {
+        val today = getForecastToday()
+        val tomorrow = getForecastTomorrow()
+        val tenDays = getForecastTenDays()
+
+        if (today is ResultModel.Success
+            && tomorrow is ResultModel.Success
+            && tenDays is ResultModel.Success) {
+
+            val dayList = mutableListOf<ForecastDayDataModel>()
+            dayList.add(today.data)
+            dayList.add(tomorrow.data)
+            tenDays.data.forEach {
+                dayList.add(it)
             }
 
-        return forecastResultModel
+            return ResultModel.Success(dayList)
+        }
+        return when {
+            today is ResultModel.Error -> ResultModel.Error(today.code, today.message)
+            tomorrow is ResultModel.Error -> ResultModel.Error(tomorrow.code, tomorrow.message)
+            tenDays is ResultModel.Error -> ResultModel.Error(tenDays.code, tenDays.message)
+            else -> ResultModel.Error(
+                -1,
+                "Unknown error"
+            )
+        }
     }
+
+    private suspend fun <T> safeApiCall(apiCall: suspend () -> Response<T>): ResultModel<T> =
+        try {
+            val apiCallResult = apiCall()
+
+            if (apiCallResult.isSuccessful) {
+                val apiCallResultBody = apiCallResult.body()!!
+                ResultModel.Success(apiCallResultBody)
+            } else {
+                ResultModel.Error(
+                    code = apiCallResult.code(),
+                    message = apiCallResult.message()
+                )
+            }
+        } catch (e: Exception) {
+            ResultModel.Error(
+                -1,
+                "Network error"
+            )
+        }
 
     private fun getForecastDayModelWithHourListFromCurrentTime(
         forecastNetworkResponseBody: ForecastResponse
@@ -173,6 +231,7 @@ class ForecastRemoteDataSource(
                 hour = todayHours.map {
                     HourDataModel(
                         time = getTimeString(timeFormat, it.time_epoch),
+                        timeEpoch = it.time_epoch,
                         tempC = it.temp_c.roundToInt(),
                         condition = ConditionDataModel(
                             text = it.condition.text,
@@ -210,6 +269,7 @@ class ForecastRemoteDataSource(
                 hour = this.hour.map {
                     HourDataModel(
                         time = getTimeString(timeFormat, it.time_epoch),
+                        timeEpoch = it.time_epoch,
                         tempC = it.temp_c.roundToInt(),
                         condition = ConditionDataModel(
                             text = it.condition.text,

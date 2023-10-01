@@ -1,12 +1,14 @@
 package com.viktorger.fineweather.data.storage
 
+import android.util.Log
 import com.viktorger.fineweather.data.model.ConditionDataModel
 import com.viktorger.fineweather.data.model.DayEnum
 import com.viktorger.fineweather.data.model.ForecastDayDataModel
 import com.viktorger.fineweather.data.model.HourDataModel
-import com.viktorger.fineweather.data.model.LocationDataModel
 import com.viktorger.fineweather.data.model.TenDaysEnum
 import com.viktorger.fineweather.data.storage.room.LocalDatabase
+import com.viktorger.fineweather.data.storage.room.entities.DayEntity
+import com.viktorger.fineweather.data.storage.room.entities.HourEntity
 import com.viktorger.fineweather.data.storage.room.relationships.DayWithHours
 import com.viktorger.fineweather.domain.model.ResultModel
 
@@ -70,11 +72,21 @@ class ForecastLocalDataSource(
         }
     }
 
-    suspend fun saveWeatherToday(forecastDay: ForecastDayDataModel, day: Int) {
+    private suspend fun saveForecastDay(forecastDay: ForecastDayDataModel, day: Int) {
         val dayDao = localDatabase.dayDao()
         val hourDao = localDatabase.hourDao()
 
-        // dayDao.insertDay(forecastResponse)
+        val dayWithHours = dataToLocalData(forecastDay, day)
+
+        dayDao.insertDay(dayWithHours.day)
+        hourDao.deleteHoursByDay(day)
+        hourDao.insertHour(dayWithHours.hours)
+    }
+
+    suspend fun saveForecastDayList(forecastDays: List<ForecastDayDataModel>) {
+        forecastDays.forEachIndexed { index, it ->
+            saveForecastDay(it, index)
+        }
     }
 
     private fun localDataToData(dayWithHours: DayWithHours) = ForecastDayDataModel(
@@ -91,6 +103,7 @@ class ForecastLocalDataSource(
         status = dayWithHours.day.status,
         hour = dayWithHours.hours.map {
             HourDataModel(
+                timeEpoch = it.timeEpoch,
                 time = it.time,
                 tempC = it.tempC,
                 condition = ConditionDataModel(
@@ -101,4 +114,32 @@ class ForecastLocalDataSource(
             )
         }
     )
+
+    private fun dataToLocalData(forecastDayDataModel: ForecastDayDataModel, day: Int) = with(forecastDayDataModel) {
+        DayWithHours(
+            day = DayEntity(
+                day = day,
+                locationName = location,
+                lastUpdate = lastUpdate,
+                date = date,
+                maxTempC = maxTempC,
+                minTempC = minTempC,
+                status = status,
+                dailyChanceOfRain = dailyChanceOfRain,
+                conditionText = condition.text,
+                conditionIcon = condition.icon
+            ),
+            hours = hour.map {
+                HourEntity(
+                    timeEpoch = it.timeEpoch,
+                    time = it.time,
+                    tempC = it.tempC,
+                    chanceOfRain = it.chanceOfRain,
+                    day = day,
+                    conditionText = it.condition.text,
+                    conditionIcon = it.condition.icon
+                )
+            }
+        )
+    }
 }

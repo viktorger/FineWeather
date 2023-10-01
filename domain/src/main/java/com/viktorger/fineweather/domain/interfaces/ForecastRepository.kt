@@ -5,8 +5,7 @@ import com.viktorger.fineweather.domain.model.ResultModel
 import kotlinx.coroutines.flow.Flow
 
 interface ForecastRepository {
-    suspend fun getWeatherTomorrow() : Flow<ResultModel<ForecastDayModel>>
-    suspend fun getWeatherToday(): Flow<ResultModel<ForecastDayModel>>
-
-    suspend fun getWeatherTenDays() : Flow<ResultModel<List<ForecastDayModel>>>
+    fun getWeatherTomorrow(forceUpdate: Boolean) : Flow<ResultModel<ForecastDayModel>>
+    fun getWeatherToday(forceUpdate: Boolean): Flow<ResultModel<ForecastDayModel>>
+    fun getWeatherTenDays(forceUpdate: Boolean) : Flow<ResultModel<List<ForecastDayModel>>>
 }

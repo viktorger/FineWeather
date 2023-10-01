@@ -1,7 +1,6 @@
 package com.viktorger.fineweather.presentation.dailyweather
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -30,25 +29,31 @@ class DailyWeatherFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initListeners()
-        vm.fetchTenDays()
+        vm.loadTenDaysForecast()
+
+        binding.srlDaily.setOnRefreshListener {
+            vm.updateTenDaysForecast()
+        }
 
         binding.rvDaily.adapter = adapter
-        val currentTimestamp = System.currentTimeMillis()
     }
 
     private fun initListeners() {
         vm.forecastListLiveData.observe(viewLifecycleOwner) {
             when (it) {
                 is ResultModel.Success -> {
+                    stopLoadingAnims()
                     adapter.updateList(it.data)
                 }
                 is ResultModel.Error -> {
+                    stopLoadingAnims()
                     Toast.makeText(requireContext(),
                         "${it.message}",
                         Toast.LENGTH_LONG
                     ).show()
                 }
-                else -> {
+                is ResultModel.Loading -> {
+                    binding.pbDaily.visibility = View.VISIBLE
                 }
             }
         }
@@ -58,6 +63,11 @@ class DailyWeatherFragment : Fragment() {
         super.onDestroyView()
 
         _binding = null
+    }
+
+    private fun stopLoadingAnims() {
+        binding.srlDaily.isRefreshing = false
+        binding.pbDaily.visibility = View.GONE
     }
 
 }

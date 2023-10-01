@@ -148,6 +148,8 @@ class TemperatureLineChartView(context: Context?, attrs: AttributeSet?) : View(c
         super.onDraw(canvas)
         if (vertices.isEmpty()) return
 
+        path.rewind()
+
         path.moveTo(vertices[0].first, vertices[0].second)
         for (i in 1 until vertices.lastIndex) {
             path.lineTo(vertices[i].first, vertices[i].second)
