@@ -54,59 +54,7 @@ class ForecastRemoteDataSource(
         )
     }
 
-    private suspend fun getForecastToday(): ResultModel<ForecastDayDataModel> {
-        val forecastResponse: ResultModel<ForecastResponse> = safeApiCall {
-            forecastApi.getForecast(
-                "1858f254dc844b8fa6a224832232608",
-                "auto:ip",
-                DayEnum.Tomorrow.dayPos + 1
-            )
-        }
-
-        return when (forecastResponse) {
-            is ResultModel.Success -> ResultModel.Success(
-                getForecastDayModelWithHourListFromCurrentTime(forecastResponse.data)
-            )
-
-            is ResultModel.Error -> ResultModel.Error(
-                code = forecastResponse.code,
-                message = forecastResponse.message
-            )
-
-            else -> ResultModel.Error(
-                code = -1,
-                message = "Unknown error"
-            )
-        }
-    }
-
-    private suspend fun getForecastTomorrow(): ResultModel<ForecastDayDataModel> {
-        val forecastResponse: ResultModel<ForecastResponse> = safeApiCall {
-            forecastApi.getForecast(
-                "1858f254dc844b8fa6a224832232608",
-                "auto:ip",
-                DayEnum.Tomorrow.dayPos + 1
-            )
-        }
-
-        return when (forecastResponse) {
-            is ResultModel.Success -> ResultModel.Success(
-                dayForecastResponseToData(forecastResponse.data, DayEnum.Tomorrow.dayPos)
-            )
-
-            is ResultModel.Error -> ResultModel.Error(
-                code = forecastResponse.code,
-                message = forecastResponse.message
-            )
-
-            else -> ResultModel.Error(
-                code = -1,
-                message = "Unknown error"
-            )
-        }
-    }
-
-    private suspend fun getForecastTenDays(): ResultModel<List<ForecastDayDataModel>> {
+    suspend fun getEveryWeather(): ResultModel<List<ForecastDayDataModel>> {
         val forecastResponse: ResultModel<ForecastResponse> = safeApiCall {
             forecastApi.getForecast(
                 "1858f254dc844b8fa6a224832232608",
@@ -117,59 +65,33 @@ class ForecastRemoteDataSource(
 
         return when (forecastResponse) {
             is ResultModel.Success -> {
-                val dayList = mutableListOf<ForecastDayDataModel>()
+                val today = getForecastDayModelWithHourListFromCurrentTime(forecastResponse.data)
+                val tomorrow = dayForecastResponseToData(
+                    forecastResponse.data,
+                    DayEnum.Tomorrow.dayPos
+                )
 
+                val tenDaysList = mutableListOf<ForecastDayDataModel>()
                 for (day in forecastResponse.data.forecast.forecastday.indices) {
                     val forecastDayModel = dayForecastResponseToData(
                         forecastResponse.data,
                         day
                     )
-                    dayList.add(forecastDayModel)
+                    tenDaysList.add(forecastDayModel)
                 }
 
-                ResultModel.Success(
-                    dayList
-                )
-            }
+                val resultDaysList = mutableListOf<ForecastDayDataModel>(today, tomorrow)
+                resultDaysList.addAll(tenDaysList)
 
+                ResultModel.Success(resultDaysList)
+            }
             is ResultModel.Error -> ResultModel.Error(
                 code = forecastResponse.code,
                 message = forecastResponse.message
             )
-
             else -> ResultModel.Error(
                 code = -1,
                 message = "Unknown error"
-            )
-        }
-    }
-
-    suspend fun getEveryWeather(): ResultModel<List<ForecastDayDataModel>> {
-        val today = getForecastToday()
-        val tomorrow = getForecastTomorrow()
-        val tenDays = getForecastTenDays()
-
-        if (today is ResultModel.Success
-            && tomorrow is ResultModel.Success
-            && tenDays is ResultModel.Success
-        ) {
-
-            val dayList = mutableListOf<ForecastDayDataModel>()
-            dayList.add(today.data)
-            dayList.add(tomorrow.data)
-            tenDays.data.forEach {
-                dayList.add(it)
-            }
-
-            return ResultModel.Success(dayList)
-        }
-        return when {
-            today is ResultModel.Error -> ResultModel.Error(today.code, today.message)
-            tomorrow is ResultModel.Error -> ResultModel.Error(tomorrow.code, tomorrow.message)
-            tenDays is ResultModel.Error -> ResultModel.Error(tenDays.code, tenDays.message)
-            else -> ResultModel.Error(
-                -1,
-                "Unknown error"
             )
         }
     }
