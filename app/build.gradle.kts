@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
     id("androidx.navigation.safeargs.kotlin")
+    kotlin("kapt")
 }
 
 android {
@@ -61,6 +62,10 @@ dependencies {
 
     // Swipe-to-refresh
     implementation(libs.androidx.swiperefreshlayout)
+
+    // Dagger
+    implementation(libs.dagger)
+    kapt(libs.dagger.compiler)
 
     implementation(libs.core.ktx)
     implementation(libs.appcompat)

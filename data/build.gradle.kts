@@ -51,6 +51,10 @@ dependencies {
     // Coroutines
     implementation(libs.kotlinx.coroutines.core)
 
+    // Dagger
+    implementation(libs.dagger)
+    kapt(libs.dagger.compiler)
+
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
     implementation(libs.material)
