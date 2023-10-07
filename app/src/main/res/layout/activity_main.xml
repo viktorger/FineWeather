@@ -15,11 +15,24 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/tb_main"
+        <EditText
+            android:id="@+id/et_main_search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary" />
+            android:background="@drawable/shape_search_edittext"
+            android:drawableStart="@drawable/ic_search"
+            android:drawablePadding="5dp"
+            android:imeOptions="actionSearch"
+            android:hint="Location"
+            android:textColor="@color/black"
+            android:focusable="false"
+
+            android:importantForAutofill="no"
+            android:inputType="textCapSentences"
+            android:padding="10dp"
+            android:layout_margin="16dp"
+            android:textSize="14sp" />
+
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tl_main"

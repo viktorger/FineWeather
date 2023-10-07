@@ -1,4 +1,4 @@
-package com.viktorger.fineweather.data.repository.interfaces
+package com.viktorger.fineweather.data.repository
 
 import com.viktorger.fineweather.data.model.DayEnum
 import com.viktorger.fineweather.data.model.ForecastDayDataModel

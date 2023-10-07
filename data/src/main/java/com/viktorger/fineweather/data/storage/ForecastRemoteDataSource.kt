@@ -24,7 +24,7 @@ class ForecastRemoteDataSource(
     suspend fun getLocationInfo(): ResultModel<LocationDataModel> {
         val location = safeApiCall {
             forecastApi.getLocationInfo(
-                "1858f254dc844b8fa6a224832232608",
+                KEY,
                 "auto:ip"
             )
         }
@@ -57,7 +57,7 @@ class ForecastRemoteDataSource(
     suspend fun getEveryWeather(): ResultModel<List<ForecastDayDataModel>> {
         val forecastResponse: ResultModel<ForecastResponse> = safeApiCall {
             forecastApi.getForecast(
-                "1858f254dc844b8fa6a224832232608",
+                KEY,
                 "auto:ip",
                 DayEnum.TenDays.dayPos + 1
             )
@@ -80,7 +80,7 @@ class ForecastRemoteDataSource(
                     tenDaysList.add(forecastDayModel)
                 }
 
-                val resultDaysList = mutableListOf<ForecastDayDataModel>(today, tomorrow)
+                val resultDaysList = mutableListOf(today, tomorrow)
                 resultDaysList.addAll(tenDaysList)
 
                 ResultModel.Success(resultDaysList)
@@ -96,28 +96,6 @@ class ForecastRemoteDataSource(
         }
     }
 
-    private suspend fun <T> safeApiCall(apiCall: suspend () -> Response<T>)
-            : ResultModel<T> = withContext(Dispatchers.IO) {
-        try {
-            val apiCallResult = apiCall()
-
-            if (apiCallResult.isSuccessful) {
-                val apiCallResultBody = apiCallResult.body()!!
-                ResultModel.Success(apiCallResultBody)
-            } else {
-                ResultModel.Error(
-                    code = apiCallResult.code(),
-                    message = apiCallResult.message()
-                )
-            }
-        } catch (e: Exception) {
-            ResultModel.Error(
-                -1,
-                "Network error"
-            )
-        }
-    }
-
 
     private fun getForecastDayModelWithHourListFromCurrentTime(
         forecastNetworkResponseBody: ForecastResponse
@@ -126,7 +104,7 @@ class ForecastRemoteDataSource(
         val forecastTomorrow = forecastNetworkResponseBody.forecast.forecastday[1]
         val hours = mutableListOf<Hour>()
 
-        var firstToday: Int = 0
+        var firstToday = 0
         while (firstToday < 24 && forecastNetworkResponseBody
                 .location.localtime_epoch > forecastToday.hour[firstToday].time_epoch
         ) {

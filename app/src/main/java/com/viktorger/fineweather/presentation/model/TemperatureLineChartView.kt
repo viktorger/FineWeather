@@ -70,6 +70,7 @@ class TemperatureLineChartView(context: Context?, attrs: AttributeSet?) : View(c
 
             vertices = verticesList
         }
+
     private var vertices: List<Pair<Float, Float>> = listOf()
 
     private var decorBoxHeight: Int = (spToPx(13F) + dpToPx(10F)).toInt()

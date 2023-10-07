@@ -17,4 +17,10 @@ interface ForecastApi {
         @Query("key") key: String,
         @Query("q", encoded = true) location: String
     ): Response<LocationResponse>
+
+    @GET("search.json")
+    suspend fun getSearchedLocationList(
+        @Query("key") key: String,
+        @Query("q", encoded = true) location: String
+    ): Response<List<SearchedLocation>>
 }

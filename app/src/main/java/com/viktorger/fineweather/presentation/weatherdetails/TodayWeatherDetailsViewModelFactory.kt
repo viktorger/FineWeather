@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
-import com.viktorger.fineweather.data.repository.interfaces.ForecastRepositoryImpl
+import com.viktorger.fineweather.data.repository.ForecastRepositoryImpl
 import com.viktorger.fineweather.data.storage.ForecastLocalDataSource
 import com.viktorger.fineweather.data.storage.ForecastRemoteDataSource
 import com.viktorger.fineweather.data.storage.retrofit.ForecastApi
