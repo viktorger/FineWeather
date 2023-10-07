@@ -14,9 +14,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.text.SimpleDateFormat
 import java.util.Locale
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.math.abs
 
-class ForecastRepositoryImpl(
+@Singleton
+class ForecastRepositoryImpl @Inject constructor(
     private val forecastLocalDataSource: ForecastLocalDataSource,
     private val forecastRemoteDataSource: ForecastRemoteDataSource
 ) : ForecastRepository {

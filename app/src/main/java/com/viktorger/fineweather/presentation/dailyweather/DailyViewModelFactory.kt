@@ -15,50 +15,11 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Inject
 
-class DailyViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
-
-    private val forecastApi: ForecastApi by lazy {
-        val interceptor = HttpLoggingInterceptor()
-        interceptor.level = HttpLoggingInterceptor.Level.BODY
-
-        val okHttpClient = OkHttpClient.Builder()
-            .addInterceptor(interceptor)
-            .build()
-
-
-        val retrofit = Retrofit.Builder()
-            .client(okHttpClient)
-            .baseUrl("https://api.weatherapi.com/v1/")
-            .addConverterFactory(GsonConverterFactory.create()).build()
-
-        retrofit.create(ForecastApi::class.java)
-    }
-
-    private val localDatabase: LocalDatabase by lazy {
-        Room.databaseBuilder(
-            context,
-            LocalDatabase::class.java,
-            "localDb"
-        ).build()
-    }
-
-    private val forecastLocalDataSource: ForecastLocalDataSource by lazy {
-        ForecastLocalDataSource(localDatabase)
-    }
-
-    private val forecastRemoteDataSource: ForecastRemoteDataSource by lazy {
-        ForecastRemoteDataSource(forecastApi)
-    }
-
-    private val forecastRepository: ForecastRepository by lazy {
-        ForecastRepositoryImpl(forecastLocalDataSource, forecastRemoteDataSource)
-    }
-
-    private val getWeatherTenDaysUseCase: GetWeatherTenDaysUseCase by lazy {
-        GetWeatherTenDaysUseCase(forecastRepository)
-    }
-
+class DailyViewModelFactory @Inject constructor(
+    private val getWeatherTenDaysUseCase: GetWeatherTenDaysUseCase
+) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

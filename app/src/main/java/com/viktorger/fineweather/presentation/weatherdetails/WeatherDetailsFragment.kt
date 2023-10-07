@@ -3,17 +3,19 @@ package com.viktorger.fineweather.presentation.weatherdetails
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
+import com.viktorger.fineweather.app.MyApplication
 import com.viktorger.fineweather.databinding.FragmentWeatherDetailsBinding
 import com.viktorger.fineweather.domain.model.ResultModel
 import com.viktorger.fineweather.presentation.model.DayEnum
+import javax.inject.Inject
 
 class WeatherDetailsFragment : Fragment() {
 
@@ -22,11 +24,15 @@ class WeatherDetailsFragment : Fragment() {
     private var _binding: FragmentWeatherDetailsBinding? = null
     private val binding get() = _binding!!
 
-    private val vm: WeatherDetailsViewModel by viewModels { TodayWeatherDetailsViewModelFactory(requireContext()) }
+    @Inject
+    lateinit var viewModelFactory: WeatherDetailsViewModelFactory
+    private val vm: WeatherDetailsViewModel by lazy {
+        ViewModelProvider(this, viewModelFactory)[WeatherDetailsViewModel::class.java]
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        (requireActivity().application as MyApplication).appComponent.inject(this)
     }
 
     override fun onCreateView(

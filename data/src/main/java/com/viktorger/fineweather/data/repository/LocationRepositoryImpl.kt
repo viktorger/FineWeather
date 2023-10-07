@@ -2,13 +2,14 @@ package com.viktorger.fineweather.data.repository
 
 import com.viktorger.fineweather.data.model.SearchedLocationDataModel
 import com.viktorger.fineweather.data.storage.LocationRemoteDataSource
-import com.viktorger.fineweather.domain.interfaces.SearchRepository
+import com.viktorger.fineweather.domain.interfaces.LocationRepository
 import com.viktorger.fineweather.domain.model.ResultModel
 import com.viktorger.fineweather.domain.model.SearchedLocationModel
+import javax.inject.Inject
 
-class SearchRepositoryImpl(
+class LocationRepositoryImpl @Inject constructor(
     private val locationRemoteDataSource: LocationRemoteDataSource
-) : SearchRepository {
+) : LocationRepository {
 
     override suspend fun getSearchedLocationList(query: String)
     : ResultModel<List<SearchedLocationModel>> {

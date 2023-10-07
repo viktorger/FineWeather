@@ -13,8 +13,9 @@ import com.viktorger.fineweather.data.storage.room.relationships.DayWithHours
 import com.viktorger.fineweather.domain.model.ResultModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class ForecastLocalDataSource(
+class ForecastLocalDataSource @Inject constructor(
     private val localDatabase: LocalDatabase
 ) {
 

@@ -1,12 +1,15 @@
 package com.viktorger.fineweather.domain.usecase
 
-import com.viktorger.fineweather.domain.interfaces.SearchRepository
+import com.viktorger.fineweather.domain.interfaces.LocationRepository
 import com.viktorger.fineweather.domain.model.ResultModel
 import com.viktorger.fineweather.domain.model.SearchedLocationModel
+import javax.inject.Inject
 
-class GetSearchedLocationUseCase(private val searchRepository: SearchRepository) {
+class GetSearchedLocationUseCase @Inject constructor(
+    private val locationRepository: LocationRepository
+) {
 
     suspend operator fun invoke(query: String): ResultModel<List<SearchedLocationModel>> =
-        searchRepository.getSearchedLocationList(query)
+        locationRepository.getSearchedLocationList(query)
 
 }

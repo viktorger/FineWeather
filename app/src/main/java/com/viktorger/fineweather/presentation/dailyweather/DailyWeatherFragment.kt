@@ -7,16 +7,29 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
+import com.viktorger.fineweather.app.MyApplication
 import com.viktorger.fineweather.databinding.FragmentDailyWeatherBinding
 import com.viktorger.fineweather.domain.model.ResultModel
+import javax.inject.Inject
 
 class DailyWeatherFragment : Fragment() {
 
     private val adapter = DailyAdapter()
-    private val vm: DailyViewModel by viewModels { DailyViewModelFactory(requireContext()) }
+
+    @Inject
+    lateinit var viewModelFactory: DailyViewModelFactory
+    private val vm: DailyViewModel by lazy {
+        ViewModelProvider(this, viewModelFactory)[DailyViewModel::class.java]
+    }
 
     private var _binding: FragmentDailyWeatherBinding? = null
     private val binding get() = _binding!!
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        (requireActivity().application as MyApplication).appComponent.inject(this)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

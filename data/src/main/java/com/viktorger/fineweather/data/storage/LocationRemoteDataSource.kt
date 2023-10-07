@@ -4,8 +4,9 @@ import com.viktorger.fineweather.data.model.SearchedLocationDataModel
 import com.viktorger.fineweather.data.storage.retrofit.ForecastApi
 import com.viktorger.fineweather.data.storage.retrofit.SearchedLocation
 import com.viktorger.fineweather.domain.model.ResultModel
+import javax.inject.Inject
 
-class LocationRemoteDataSource(
+class LocationRemoteDataSource @Inject constructor(
     private val forecastApi: ForecastApi
 ) {
 

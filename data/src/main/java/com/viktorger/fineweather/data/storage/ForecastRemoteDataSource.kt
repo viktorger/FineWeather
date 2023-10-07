@@ -16,9 +16,10 @@ import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
+import javax.inject.Inject
 import kotlin.math.roundToInt
 
-class ForecastRemoteDataSource(
+class ForecastRemoteDataSource @Inject constructor(
     private val forecastApi: ForecastApi
 ) {
     suspend fun getLocationInfo(): ResultModel<LocationDataModel> {
