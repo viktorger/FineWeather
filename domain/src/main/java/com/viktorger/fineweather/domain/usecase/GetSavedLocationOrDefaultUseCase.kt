@@ -9,5 +9,5 @@ class GetSavedLocationOrDefaultUseCase @Inject constructor(
     private val locationRepository: LocationRepository
 ) {
     suspend operator fun invoke(): ResultModel<SearchedLocationModel> = locationRepository
-        .getSavedLocationOrDefault()
+        .getSavedLocationOrPhysicalLocation()
 }

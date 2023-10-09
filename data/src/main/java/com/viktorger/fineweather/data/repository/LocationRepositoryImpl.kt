@@ -40,7 +40,7 @@ class LocationRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getSavedLocationOrDefault(): ResultModel<SearchedLocationModel> {
+    override suspend fun getSavedLocationOrPhysicalLocation(): ResultModel<SearchedLocationModel> {
         val localResult = locationLocalDataSource.getLocation()
 
         if (localResult is ResultModel.Success) {
@@ -48,10 +48,7 @@ class LocationRepositoryImpl @Inject constructor(
                 locationToDomain(localResult.data)
             )
         } else {
-            return ResultModel.Error(
-                (localResult as ResultModel.Error).code,
-                localResult.message
-            )
+            return getGpsLocation()
         }
     }
 

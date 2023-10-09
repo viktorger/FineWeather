@@ -5,6 +5,7 @@ import com.viktorger.fineweather.data.model.ConditionDataModel
 import com.viktorger.fineweather.data.model.DayEnum
 import com.viktorger.fineweather.data.model.ForecastDayDataModel
 import com.viktorger.fineweather.data.model.HourDataModel
+import com.viktorger.fineweather.data.model.SearchedLocationDataModel
 import com.viktorger.fineweather.data.model.TenDaysEnum
 import com.viktorger.fineweather.data.storage.room.LocalDatabase
 import com.viktorger.fineweather.data.storage.room.entities.DayEntity
@@ -85,7 +86,7 @@ class ForecastLocalDataSource @Inject constructor(
         val dayDao = localDatabase.dayDao()
         val hourDao = localDatabase.hourDao()
 
-        val dayWithHours = dataToLocalData(forecastDay, day)
+        val dayWithHours = dataToLocalData(forecastDay, day, )
 
         withContext(Dispatchers.IO) {
             dayDao.insertDay(dayWithHours.day)
@@ -94,7 +95,9 @@ class ForecastLocalDataSource @Inject constructor(
         }
     }
 
-    suspend fun saveForecastDayList(forecastDays: List<ForecastDayDataModel>) {
+    suspend fun saveForecastDayList(
+        forecastDays: List<ForecastDayDataModel>
+    ) {
         forecastDays.forEachIndexed { index, it ->
             saveForecastDay(it, index)
         }

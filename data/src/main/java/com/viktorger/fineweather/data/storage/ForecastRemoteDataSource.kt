@@ -33,14 +33,11 @@ class ForecastRemoteDataSource @Inject constructor(
         return when (forecastResponse) {
             is ResultModel.Success -> {
                 val today = getForecastDayModelWithHourListFromCurrentTime(forecastResponse.data)
-                Log.d("RemoteSource", today.toString())
 
                 val tomorrow = dayForecastResponseToData(
                     forecastResponse.data,
                     DayEnum.Tomorrow.dayPos
                 )
-                Log.d("RemoteSource", tomorrow.toString())
-
 
                 val tenDaysList = mutableListOf<ForecastDayDataModel>()
                 for (day in forecastResponse.data.forecast.forecastday.indices) {
@@ -53,6 +50,10 @@ class ForecastRemoteDataSource @Inject constructor(
 
                 val resultDaysList = mutableListOf(today, tomorrow)
                 resultDaysList.addAll(tenDaysList)
+
+                resultDaysList.map { it.apply {
+                    location = locationModel.locationName
+                } }
 
                 ResultModel.Success(resultDaysList)
             }

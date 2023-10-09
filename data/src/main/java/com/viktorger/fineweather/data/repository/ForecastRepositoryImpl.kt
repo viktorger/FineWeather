@@ -232,11 +232,11 @@ class ForecastRepositoryImpl @Inject constructor(
 
         val currentTimestamp = System.currentTimeMillis()
 
-        /*Log.d("IsNeeded", """
+        Log.d("IsNeeded", """
             ${forecastDay.location} and ${searchedLocationDataModel.locationName}
             ${forecastDay.lastUpdate * 1000L - currentTimestamp}
             ${simpleDateFormat.format(forecastDay.lastUpdate * 1000L)} ${simpleDateFormat.format(currentTimestamp)}
-        """.trimIndent())*/
+        """.trimIndent())
 
         return !(forecastDay.location == searchedLocationDataModel.locationName
                 && abs(forecastDay.lastUpdate * 1000L - currentTimestamp) < secondsInADay

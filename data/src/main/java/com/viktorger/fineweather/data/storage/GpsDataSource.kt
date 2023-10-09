@@ -78,11 +78,11 @@ class GpsDataSource @Inject constructor(
                     currentLocation = itNetwork
                 }
             }
-            /*og.d("Gps", "${locationByGps?.latitude} ${locationByGps?.longitude}")
+            /*Log.d("Gps", "${locationByGps?.latitude} ${locationByGps?.longitude}")
             Log.d("network", "${locationByNetwork?.latitude} ${locationByNetwork?.longitude}")*/
 
 
-            Log.d("PRIKOL", "${currentLocation?.latitude} ${currentLocation?.longitude}")
+            // Log.d("PRIKOL", "${currentLocation?.latitude} ${currentLocation?.longitude}")
             val result: ResultModel<SearchedLocationDataModel> = currentLocation?.let {
                 ResultModel.Success(
                     SearchedLocationDataModel(

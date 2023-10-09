@@ -1,12 +1,14 @@
 package com.viktorger.fineweather.presentation
 
-import android.content.Intent
+import android.Manifest
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
+import android.util.Log
 import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
@@ -17,7 +19,6 @@ import com.viktorger.fineweather.R
 import com.viktorger.fineweather.app.MyApplication
 import com.viktorger.fineweather.presentation.model.DayEnum
 import com.viktorger.fineweather.presentation.model.LocationSearchContract
-import com.viktorger.fineweather.presentation.search.LocationSearchActivity
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
@@ -38,15 +39,7 @@ class MainActivity : AppCompatActivity() {
     val requestPermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { isGranted: Boolean ->
-            if (isGranted) {
-
-            } else {
-                // Explain to the user that the feature is unavailable because the
-                // feature requires a permission that the user has denied. At the
-                // same time, respect the user's decision. Don't link to system
-                // settings in an effort to convince the user to change their
-                // decision.
-            }
+            vm.initVm()
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,7 +49,15 @@ class MainActivity : AppCompatActivity() {
 
         (application as MyApplication).appComponent.inject(this)
 
-        vm.initVm()
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED) {
+            vm.initVm()
+        } else {
+            requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+        }
+
         initNavigation()
         initSearchableEditText()
         initObservers()
@@ -120,6 +121,8 @@ class MainActivity : AppCompatActivity() {
     private fun initObservers() {
         vm.locationLiveData.observe(this) {
             binding.etMainSearch.setText(it.locationName)
+
+            Log.d("MainObserver", it.toString())
         }
     }
 

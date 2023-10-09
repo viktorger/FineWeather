@@ -2,7 +2,7 @@ package com.viktorger.fineweather.data.model
 
 data class ForecastDayDataModel(
     val date: String,
-    val location: String,
+    var location: String,
     val tzId: String,
     val lastUpdate: Int,
     val maxTempC: Int,
