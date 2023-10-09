@@ -2,6 +2,7 @@ package com.viktorger.fineweather.presentation.weatherdetails
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -74,11 +75,13 @@ class WeatherDetailsFragment : Fragment() {
                         .load(forecastDay.condition.icon)
                         .into(binding.imageView)
 
-                    binding.linechartDetails.setTempTimeSource(
-                        forecastDay.hour.map { hourModel -> hourModel.tempC },
-                        forecastDay.hour.map { hourModel -> hourModel.time },
-                        forecastDay.hour.map { hourModel -> hourModel.condition.icon }
-                    )
+                    if (forecastDay.hour.isNotEmpty()) {
+                        binding.linechartDetails.setTempTimeSource(
+                            forecastDay.hour.map { hourModel -> hourModel.tempC },
+                            forecastDay.hour.map { hourModel -> hourModel.time },
+                            forecastDay.hour.map { hourModel -> hourModel.condition.icon }
+                        )
+                    }
 
                 }
                 is ResultModel.Error -> {

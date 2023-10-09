@@ -2,6 +2,7 @@ package com.viktorger.fineweather.data.repository
 
 import com.viktorger.fineweather.data.model.DayEnum
 import com.viktorger.fineweather.data.model.ForecastDayDataModel
+import com.viktorger.fineweather.data.model.SearchedLocationDataModel
 import com.viktorger.fineweather.data.model.TenDaysEnum
 import com.viktorger.fineweather.data.storage.ForecastLocalDataSource
 import com.viktorger.fineweather.data.storage.ForecastRemoteDataSource
@@ -28,6 +29,7 @@ class ForecastRepositoryImpl @Inject constructor(
     override fun getWeatherToday(
         locationModel: SearchedLocationModel, forceUpdate: Boolean
     ): Flow<ResultModel<ForecastDayModel>> = flow {
+        val locationDataModel = locationToData(locationModel)
         val localResult = forecastLocalDataSource.getForecastToday()
 
         if (localResult is ResultModel.Success && !forceUpdate) {
@@ -41,8 +43,8 @@ class ForecastRepositoryImpl @Inject constructor(
 
         if (localResult is ResultModel.Error
             || forceUpdate
-            || isNeededToBeUpdated((localResult as ResultModel.Success).data)) {
-            val forecastNetworkResult = forecastRemoteDataSource.getEveryWeather(locationModel)
+            || isNeededToBeUpdated((localResult as ResultModel.Success).data, locationDataModel)) {
+            val forecastNetworkResult = forecastRemoteDataSource.getEveryWeather(locationDataModel)
             val forecastResultModel: ResultModel<ForecastDayModel>
 
             when (forecastNetworkResult) {
@@ -66,9 +68,16 @@ class ForecastRepositoryImpl @Inject constructor(
         }
     }
 
+    private fun locationToData(locationModel: SearchedLocationModel): SearchedLocationDataModel =
+        SearchedLocationDataModel(
+            locationName = locationModel.locationName,
+            coordinates = locationModel.coordinates
+        )
+
     override fun getWeatherTomorrow(
         locationModel: SearchedLocationModel, forceUpdate: Boolean
     ): Flow<ResultModel<ForecastDayModel>> = flow {
+        val locationDataModel = locationToData(locationModel)
         val localResult = forecastLocalDataSource.getForecastTomorrow()
 
         if (localResult is ResultModel.Success && !forceUpdate) {
@@ -82,9 +91,9 @@ class ForecastRepositoryImpl @Inject constructor(
 
         if (localResult is ResultModel.Error
             || forceUpdate
-            || isNeededToBeUpdated((localResult as ResultModel.Success).data)) {
+            || isNeededToBeUpdated((localResult as ResultModel.Success).data, locationDataModel)) {
 
-            val forecastNetworkResult = forecastRemoteDataSource.getEveryWeather(locationModel)
+            val forecastNetworkResult = forecastRemoteDataSource.getEveryWeather(locationDataModel)
             val forecastResultModel: ResultModel<ForecastDayModel>
 
             when (forecastNetworkResult) {
@@ -119,6 +128,7 @@ class ForecastRepositoryImpl @Inject constructor(
     override fun getWeatherTenDays(
         locationModel: SearchedLocationModel, forceUpdate: Boolean
     ): Flow<ResultModel<List<ForecastDayModel>>> = flow {
+        val locationDataModel = locationToData(locationModel)
         val localResult = forecastLocalDataSource.getForecastTenDays()
 
         if (localResult is ResultModel.Success && !forceUpdate) {
@@ -132,8 +142,8 @@ class ForecastRepositoryImpl @Inject constructor(
 
         if (localResult is ResultModel.Error
             || forceUpdate
-            || isNeededToBeUpdated((localResult as ResultModel.Success).data[0])) {
-            val forecastNetworkResult = forecastRemoteDataSource.getEveryWeather(locationModel)
+            || isNeededToBeUpdated((localResult as ResultModel.Success).data[0], locationDataModel)) {
+            val forecastNetworkResult = forecastRemoteDataSource.getEveryWeather(locationDataModel)
             val forecastResultModel: ResultModel<List<ForecastDayModel>>
 
             when (forecastNetworkResult) {
@@ -210,11 +220,14 @@ class ForecastRepositoryImpl @Inject constructor(
     * We check if the day numbers are the same and if the difference in time is not
     * more than 1 day. If so, fetch the data
     */
-    private suspend fun isNeededToBeUpdated(forecastDay: ForecastDayDataModel): Boolean {
+    private suspend fun isNeededToBeUpdated(
+        forecastDay: ForecastDayDataModel,
+        searchedLocationDataModel: SearchedLocationDataModel
+    ): Boolean {
         val simpleDateFormat = SimpleDateFormat("dd", Locale.US)
         val secondsInADay = 86_400L
 
-        val localInfo = forecastRemoteDataSource.getLocationInfo()
+        val localInfo = forecastRemoteDataSource.getLocationInfo(searchedLocationDataModel)
 
         if (localInfo is ResultModel.Success) {
             val internetData = localInfo.data

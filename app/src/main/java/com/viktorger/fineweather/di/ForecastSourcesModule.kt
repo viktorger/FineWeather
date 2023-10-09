@@ -27,7 +27,7 @@ class ForecastSourcesModule {
 
 
         val forecastApi = Retrofit.Builder()
-            .client(okHttpClient)
+            //.client(okHttpClient)
             .baseUrl("https://api.weatherapi.com/v1/")
             .addConverterFactory(GsonConverterFactory.create()).build()
             .create(ForecastApi::class.java)

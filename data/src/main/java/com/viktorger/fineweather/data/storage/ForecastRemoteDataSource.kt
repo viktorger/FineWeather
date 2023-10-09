@@ -5,6 +5,7 @@ import com.viktorger.fineweather.data.model.DayEnum
 import com.viktorger.fineweather.data.model.ForecastDayDataModel
 import com.viktorger.fineweather.data.model.HourDataModel
 import com.viktorger.fineweather.data.model.LocationDataModel
+import com.viktorger.fineweather.data.model.SearchedLocationDataModel
 import com.viktorger.fineweather.data.storage.retrofit.ForecastApi
 import com.viktorger.fineweather.data.storage.retrofit.ForecastResponse
 import com.viktorger.fineweather.data.storage.retrofit.Hour
@@ -23,11 +24,11 @@ import kotlin.math.roundToInt
 class ForecastRemoteDataSource @Inject constructor(
     private val forecastApi: ForecastApi
 ) {
-    suspend fun getLocationInfo(): ResultModel<LocationDataModel> {
+    suspend fun getLocationInfo(locationDataModel: SearchedLocationDataModel): ResultModel<LocationDataModel> {
         val location = safeApiCall {
             forecastApi.getLocationInfo(
                 KEY,
-                "auto:ip"
+                locationDataModel.coordinates
             )
         }
         return when (location) {
@@ -50,14 +51,14 @@ class ForecastRemoteDataSource @Inject constructor(
     private fun locationToData(locationNetworkResponse: LocationResponse)
             : LocationDataModel = with(locationNetworkResponse.location) {
         LocationDataModel(
-            name = "$name, $country",
+            name = "$name, $region, $country",
             tzId = tz_id,
             lastUpdate = localtime_epoch
         )
     }
 
     suspend fun getEveryWeather(
-        locationModel: SearchedLocationModel
+        locationModel: SearchedLocationDataModel
     ): ResultModel<List<ForecastDayDataModel>> {
         val forecastResponse: ResultModel<ForecastResponse> = safeApiCall {
             forecastApi.getForecast(
