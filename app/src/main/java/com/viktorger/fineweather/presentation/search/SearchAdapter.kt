@@ -13,7 +13,7 @@ class SearchAdapter(private val onItemClickListener: OnItemClickListener)
     private var list = listOf<SearchedLocationModel>()
 
     interface OnItemClickListener {
-        fun onClick(coordinates: String)
+        fun onClick(searchedLocationModel: SearchedLocationModel)
     }
 
     inner class ViewHolder(private val binding: ItemSearchedLocationBinding)
@@ -22,7 +22,7 @@ class SearchAdapter(private val onItemClickListener: OnItemClickListener)
             binding.tvItemSearch.text = item.locationName
 
             binding.root.setOnClickListener{
-                onItemClickListener.onClick(item.coordinates)
+                onItemClickListener.onClick(item)
             }
         }
 

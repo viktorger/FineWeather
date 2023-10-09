@@ -58,6 +58,7 @@ dependencies {
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.core)
+
     implementation(libs.room.ktx)
 
     // Swipe-to-refresh
@@ -66,6 +67,10 @@ dependencies {
     // Dagger
     implementation(libs.dagger)
     kapt(libs.dagger.compiler)
+
+    // UI
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.fragment.ktx)
 
     implementation(libs.core.ktx)
     implementation(libs.appcompat)

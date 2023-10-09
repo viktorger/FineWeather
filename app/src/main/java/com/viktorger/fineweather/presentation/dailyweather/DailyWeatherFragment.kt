@@ -6,11 +6,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.viktorger.fineweather.app.MyApplication
 import com.viktorger.fineweather.databinding.FragmentDailyWeatherBinding
 import com.viktorger.fineweather.domain.model.ResultModel
+import com.viktorger.fineweather.presentation.LocationViewModel
 import javax.inject.Inject
 
 class DailyWeatherFragment : Fragment() {
@@ -19,9 +21,9 @@ class DailyWeatherFragment : Fragment() {
 
     @Inject
     lateinit var viewModelFactory: DailyViewModelFactory
-    private val vm: DailyViewModel by lazy {
-        ViewModelProvider(this, viewModelFactory)[DailyViewModel::class.java]
-    }
+    private val vm: DailyViewModel by viewModels { viewModelFactory }
+
+    private val vmLocation: LocationViewModel by activityViewModels()
 
     private var _binding: FragmentDailyWeatherBinding? = null
     private val binding get() = _binding!!
@@ -42,11 +44,6 @@ class DailyWeatherFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initListeners()
-        vm.loadTenDaysForecast()
-
-        binding.srlDaily.setOnRefreshListener {
-            vm.updateTenDaysForecast()
-        }
 
         binding.rvDaily.adapter = adapter
     }
@@ -68,6 +65,14 @@ class DailyWeatherFragment : Fragment() {
                 is ResultModel.Loading -> {
                     binding.pbDaily.visibility = View.VISIBLE
                 }
+            }
+        }
+
+        vmLocation.locationLiveData.observe(viewLifecycleOwner) {
+            vm.loadTenDaysForecast(it)
+
+            binding.srlDaily.setOnRefreshListener {
+                vm.updateTenDaysForecast(it)
             }
         }
     }

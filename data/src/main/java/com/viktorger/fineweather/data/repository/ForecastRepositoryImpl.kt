@@ -10,6 +10,7 @@ import com.viktorger.fineweather.domain.model.ConditionModel
 import com.viktorger.fineweather.domain.model.ForecastDayModel
 import com.viktorger.fineweather.domain.model.HourModel
 import com.viktorger.fineweather.domain.model.ResultModel
+import com.viktorger.fineweather.domain.model.SearchedLocationModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.text.SimpleDateFormat
@@ -24,7 +25,9 @@ class ForecastRepositoryImpl @Inject constructor(
     private val forecastRemoteDataSource: ForecastRemoteDataSource
 ) : ForecastRepository {
 
-    override fun getWeatherToday(forceUpdate: Boolean): Flow<ResultModel<ForecastDayModel>> = flow {
+    override fun getWeatherToday(
+        locationModel: SearchedLocationModel, forceUpdate: Boolean
+    ): Flow<ResultModel<ForecastDayModel>> = flow {
         val localResult = forecastLocalDataSource.getForecastToday()
 
         if (localResult is ResultModel.Success && !forceUpdate) {
@@ -39,7 +42,7 @@ class ForecastRepositoryImpl @Inject constructor(
         if (localResult is ResultModel.Error
             || forceUpdate
             || isNeededToBeUpdated((localResult as ResultModel.Success).data)) {
-            val forecastNetworkResult = forecastRemoteDataSource.getEveryWeather()
+            val forecastNetworkResult = forecastRemoteDataSource.getEveryWeather(locationModel)
             val forecastResultModel: ResultModel<ForecastDayModel>
 
             when (forecastNetworkResult) {
@@ -63,7 +66,9 @@ class ForecastRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getWeatherTomorrow(forceUpdate: Boolean): Flow<ResultModel<ForecastDayModel>> = flow {
+    override fun getWeatherTomorrow(
+        locationModel: SearchedLocationModel, forceUpdate: Boolean
+    ): Flow<ResultModel<ForecastDayModel>> = flow {
         val localResult = forecastLocalDataSource.getForecastTomorrow()
 
         if (localResult is ResultModel.Success && !forceUpdate) {
@@ -79,7 +84,7 @@ class ForecastRepositoryImpl @Inject constructor(
             || forceUpdate
             || isNeededToBeUpdated((localResult as ResultModel.Success).data)) {
 
-            val forecastNetworkResult = forecastRemoteDataSource.getEveryWeather()
+            val forecastNetworkResult = forecastRemoteDataSource.getEveryWeather(locationModel)
             val forecastResultModel: ResultModel<ForecastDayModel>
 
             when (forecastNetworkResult) {
@@ -111,7 +116,9 @@ class ForecastRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getWeatherTenDays(forceUpdate: Boolean): Flow<ResultModel<List<ForecastDayModel>>> = flow {
+    override fun getWeatherTenDays(
+        locationModel: SearchedLocationModel, forceUpdate: Boolean
+    ): Flow<ResultModel<List<ForecastDayModel>>> = flow {
         val localResult = forecastLocalDataSource.getForecastTenDays()
 
         if (localResult is ResultModel.Success && !forceUpdate) {
@@ -126,7 +133,7 @@ class ForecastRepositoryImpl @Inject constructor(
         if (localResult is ResultModel.Error
             || forceUpdate
             || isNeededToBeUpdated((localResult as ResultModel.Success).data[0])) {
-            val forecastNetworkResult = forecastRemoteDataSource.getEveryWeather()
+            val forecastNetworkResult = forecastRemoteDataSource.getEveryWeather(locationModel)
             val forecastResultModel: ResultModel<List<ForecastDayModel>>
 
             when (forecastNetworkResult) {

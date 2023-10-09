@@ -5,24 +5,18 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.view.View.OnClickListener
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.activity.viewModels
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.NavController
-import androidx.navigation.Navigation
 import com.viktorger.fineweather.app.MyApplication
-import com.viktorger.fineweather.data.storage.retrofit.SearchedLocation
 import com.viktorger.fineweather.databinding.ActivityLocationSearchBinding
 import com.viktorger.fineweather.di.SearchComponent
 import com.viktorger.fineweather.domain.model.ResultModel
-import com.viktorger.fineweather.presentation.model.LOCATION_SEARCH_KEY
-import com.viktorger.fineweather.presentation.model.LocationSearchContract
-import com.viktorger.fineweather.presentation.weatherdetails.WeatherDetailsViewModel
-import com.viktorger.fineweather.presentation.weatherdetails.WeatherDetailsViewModelFactory
+import com.viktorger.fineweather.domain.model.SearchedLocationModel
+import com.viktorger.fineweather.presentation.model.LOCATION_COORDS_KEY
+import com.viktorger.fineweather.presentation.model.LOCATION_NAME_KEY
 import javax.inject.Inject
 
 class LocationSearchActivity : AppCompatActivity(), SearchAdapter.OnItemClickListener {
@@ -33,9 +27,7 @@ class LocationSearchActivity : AppCompatActivity(), SearchAdapter.OnItemClickLis
 
     @Inject
     lateinit var viewModelFactory: LocationSearchViewModelFactory
-    private val vm: LocationSearchViewModel by lazy {
-        ViewModelProvider(this, viewModelFactory)[LocationSearchViewModel::class.java]
-    }
+    private val vm: LocationSearchViewModel by viewModels { viewModelFactory }
 
     lateinit var searchComponent: SearchComponent
 
@@ -96,9 +88,10 @@ class LocationSearchActivity : AppCompatActivity(), SearchAdapter.OnItemClickLis
         }
     }
 
-    override fun onClick(coordinates: String) {
+    override fun onClick(searchedLocationModel: SearchedLocationModel) {
         val intent = Intent()
-        intent.putExtra(LOCATION_SEARCH_KEY, coordinates)
+        intent.putExtra(LOCATION_COORDS_KEY, searchedLocationModel.coordinates)
+        intent.putExtra(LOCATION_NAME_KEY, searchedLocationModel.locationName)
         setResult(Activity.RESULT_OK, intent)
         finish()
     }

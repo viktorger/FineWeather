@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
@@ -14,6 +15,7 @@ import com.bumptech.glide.Glide
 import com.viktorger.fineweather.app.MyApplication
 import com.viktorger.fineweather.databinding.FragmentWeatherDetailsBinding
 import com.viktorger.fineweather.domain.model.ResultModel
+import com.viktorger.fineweather.presentation.LocationViewModel
 import com.viktorger.fineweather.presentation.model.DayEnum
 import javax.inject.Inject
 
@@ -26,9 +28,9 @@ class WeatherDetailsFragment : Fragment() {
 
     @Inject
     lateinit var viewModelFactory: WeatherDetailsViewModelFactory
-    private val vm: WeatherDetailsViewModel by lazy {
-        ViewModelProvider(this, viewModelFactory)[WeatherDetailsViewModel::class.java]
-    }
+    private val vm: WeatherDetailsViewModel by viewModels { viewModelFactory }
+
+    private val vmLocation: LocationViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,14 +49,6 @@ class WeatherDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObservers()
-
-        if (args.day != DayEnum.Nothing) {
-            vm.loadForecast(args.day)
-        }
-
-        binding.srlDetails.setOnRefreshListener {
-            vm.updateForecast(args.day)
-        }
     }
 
     private fun initObservers() {
@@ -98,7 +92,17 @@ class WeatherDetailsFragment : Fragment() {
                     binding.pbDetails.visibility = View.VISIBLE
                 }
             }
+        }
 
+        vmLocation.locationLiveData.observe(viewLifecycleOwner) {
+
+            if (args.day != DayEnum.Nothing) {
+                vm.loadForecast(it, args.day)
+            }
+
+            binding.srlDetails.setOnRefreshListener {
+                vm.updateForecast(it, args.day)
+            }
         }
     }
 

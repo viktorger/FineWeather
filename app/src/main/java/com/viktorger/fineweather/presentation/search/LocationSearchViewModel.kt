@@ -3,6 +3,7 @@ package com.viktorger.fineweather.presentation.search
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.viktorger.fineweather.domain.model.ResultModel
 import com.viktorger.fineweather.domain.model.SearchedLocationModel
 import com.viktorger.fineweather.domain.usecase.GetSearchedLocationUseCase
@@ -17,7 +18,7 @@ class LocationSearchViewModel(
 ) : ViewModel() {
 
     private var searchJob: Job? = null
-    private val defaultScope = CoroutineScope(Job() + Dispatchers.Default)
+    private val defaultDispatcher = Dispatchers.Default
     private var _locationListLiveData = MutableLiveData<ResultModel<List<SearchedLocationModel>>>()
     val locationListLiveData: LiveData<ResultModel<List<SearchedLocationModel>>> = _locationListLiveData
 
@@ -25,15 +26,10 @@ class LocationSearchViewModel(
         _locationListLiveData.postValue(ResultModel.Loading)
         searchJob?.cancel()
 
-        searchJob = defaultScope.launch {
+        searchJob = viewModelScope.launch(defaultDispatcher) {
             val locationInfo = getSearchedLocationUseCase(query)
             _locationListLiveData.postValue(locationInfo)
         }
-    }
-
-    override fun onCleared() {
-        defaultScope.cancel()
-        super.onCleared()
     }
 
 }

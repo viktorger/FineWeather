@@ -9,7 +9,6 @@ import javax.inject.Inject
 class LocationRemoteDataSource @Inject constructor(
     private val forecastApi: ForecastApi
 ) {
-
     suspend fun getSearchedLocationList(query: String)
     : ResultModel<List<SearchedLocationDataModel>> {
 
@@ -29,6 +28,35 @@ class LocationRemoteDataSource @Inject constructor(
                     }
                 )
 
+            }
+            is ResultModel.Error -> {
+                ResultModel.Error(
+                    code = searchResponse.code,
+                    message = searchResponse.message
+                )
+            }
+            else -> {
+                ResultModel.Error(
+                    code = -1,
+                    message = "Unknown error"
+                )
+            }
+        }
+    }
+
+    suspend fun getSearchedLocationFirst(query: String): ResultModel<SearchedLocationDataModel> {
+        val searchResponse = safeApiCall {
+            forecastApi.getSearchedLocationList(
+                key = KEY,
+                location = query
+            )
+        }
+
+        return when (searchResponse) {
+            is ResultModel.Success -> {
+                ResultModel.Success(
+                    locationListToData(searchResponse.data[0])
+                )
             }
             is ResultModel.Error -> {
                 ResultModel.Error(

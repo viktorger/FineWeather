@@ -10,6 +10,7 @@ import com.viktorger.fineweather.data.storage.retrofit.ForecastResponse
 import com.viktorger.fineweather.data.storage.retrofit.Hour
 import com.viktorger.fineweather.data.storage.retrofit.LocationResponse
 import com.viktorger.fineweather.domain.model.ResultModel
+import com.viktorger.fineweather.domain.model.SearchedLocationModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Response
@@ -55,11 +56,13 @@ class ForecastRemoteDataSource @Inject constructor(
         )
     }
 
-    suspend fun getEveryWeather(): ResultModel<List<ForecastDayDataModel>> {
+    suspend fun getEveryWeather(
+        locationModel: SearchedLocationModel
+    ): ResultModel<List<ForecastDayDataModel>> {
         val forecastResponse: ResultModel<ForecastResponse> = safeApiCall {
             forecastApi.getForecast(
                 KEY,
-                "auto:ip",
+                locationModel.coordinates,
                 DayEnum.TenDays.dayPos + 1
             )
         }
