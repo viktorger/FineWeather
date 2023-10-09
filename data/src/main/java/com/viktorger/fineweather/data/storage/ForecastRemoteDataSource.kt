@@ -1,20 +1,15 @@
 package com.viktorger.fineweather.data.storage
 
+import android.util.Log
 import com.viktorger.fineweather.data.model.ConditionDataModel
 import com.viktorger.fineweather.data.model.DayEnum
 import com.viktorger.fineweather.data.model.ForecastDayDataModel
 import com.viktorger.fineweather.data.model.HourDataModel
-import com.viktorger.fineweather.data.model.LocationDataModel
 import com.viktorger.fineweather.data.model.SearchedLocationDataModel
 import com.viktorger.fineweather.data.storage.retrofit.ForecastApi
 import com.viktorger.fineweather.data.storage.retrofit.ForecastResponse
 import com.viktorger.fineweather.data.storage.retrofit.Hour
-import com.viktorger.fineweather.data.storage.retrofit.LocationResponse
 import com.viktorger.fineweather.domain.model.ResultModel
-import com.viktorger.fineweather.domain.model.SearchedLocationModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
@@ -24,39 +19,6 @@ import kotlin.math.roundToInt
 class ForecastRemoteDataSource @Inject constructor(
     private val forecastApi: ForecastApi
 ) {
-    suspend fun getLocationInfo(locationDataModel: SearchedLocationDataModel): ResultModel<LocationDataModel> {
-        val location = safeApiCall {
-            forecastApi.getLocationInfo(
-                KEY,
-                locationDataModel.coordinates
-            )
-        }
-        return when (location) {
-            is ResultModel.Success -> ResultModel.Success(
-                locationToData(location.data)
-            )
-
-            is ResultModel.Error -> ResultModel.Error(
-                code = location.code,
-                message = location.message
-            )
-
-            else -> ResultModel.Error(
-                code = -1,
-                message = "Unknown error"
-            )
-        }
-    }
-
-    private fun locationToData(locationNetworkResponse: LocationResponse)
-            : LocationDataModel = with(locationNetworkResponse.location) {
-        LocationDataModel(
-            name = "$name, $region, $country",
-            tzId = tz_id,
-            lastUpdate = localtime_epoch
-        )
-    }
-
     suspend fun getEveryWeather(
         locationModel: SearchedLocationDataModel
     ): ResultModel<List<ForecastDayDataModel>> {
@@ -71,10 +33,14 @@ class ForecastRemoteDataSource @Inject constructor(
         return when (forecastResponse) {
             is ResultModel.Success -> {
                 val today = getForecastDayModelWithHourListFromCurrentTime(forecastResponse.data)
+                Log.d("RemoteSource", today.toString())
+
                 val tomorrow = dayForecastResponseToData(
                     forecastResponse.data,
                     DayEnum.Tomorrow.dayPos
                 )
+                Log.d("RemoteSource", tomorrow.toString())
+
 
                 val tenDaysList = mutableListOf<ForecastDayDataModel>()
                 for (day in forecastResponse.data.forecast.forecastday.indices) {
@@ -145,8 +111,9 @@ class ForecastRemoteDataSource @Inject constructor(
         with(forecastResponse.forecast.forecastday[index]) {
             return ForecastDayDataModel(
                 date = getTimeString(dateFormat, forecastResponse.location.localtime_epoch),
-                location = "${forecastResponse.location.name}, ${forecastResponse.location.country}",
+                location = "${forecastResponse.location.country}, ${forecastResponse.location.region}, ${forecastResponse.location.name}",
                 lastUpdate = forecastResponse.location.localtime_epoch,
+                tzId = forecastResponse.location.tz_id,
                 maxTempC = this.day.maxtemp_c.roundToInt(),
                 minTempC = this.day.mintemp_c.roundToInt(),
                 dailyChanceOfRain = this.day.daily_chance_of_rain,
@@ -183,8 +150,9 @@ class ForecastRemoteDataSource @Inject constructor(
         with(forecastResponse.forecast.forecastday[index]) {
             return ForecastDayDataModel(
                 date = getTimeString(dateFormat, this.date_epoch),
-                location = "${forecastResponse.location.name}, ${forecastResponse.location.country}",
+                location = "${forecastResponse.location.country}, ${forecastResponse.location.region}, ${forecastResponse.location.name}",
                 lastUpdate = forecastResponse.location.localtime_epoch,
+                tzId = forecastResponse.location.tz_id,
                 maxTempC = this.day.maxtemp_c.roundToInt(),
                 minTempC = this.day.mintemp_c.roundToInt(),
                 dailyChanceOfRain = this.day.daily_chance_of_rain,

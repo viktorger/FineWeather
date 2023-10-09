@@ -11,6 +11,7 @@ data class DayEntity(
     @PrimaryKey val day: Int,
     @ColumnInfo(name = "location_name") val locationName: String,
     @ColumnInfo(name = "last_update") val lastUpdate: Int,
+    @ColumnInfo(name = "tz_id") val tzId:  String,
     val date: String,
     @ColumnInfo(name = "maxtemp_c") val maxTempC: Int,
     @ColumnInfo(name = "mintemp_c") val minTempC: Int,

@@ -1,5 +1,6 @@
 package com.viktorger.fineweather.data.repository
 
+import android.util.Log
 import com.viktorger.fineweather.data.model.DayEnum
 import com.viktorger.fineweather.data.model.ForecastDayDataModel
 import com.viktorger.fineweather.data.model.SearchedLocationDataModel
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.text.SimpleDateFormat
 import java.util.Locale
+import java.util.TimeZone
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.abs
@@ -220,32 +222,29 @@ class ForecastRepositoryImpl @Inject constructor(
     * We check if the day numbers are the same and if the difference in time is not
     * more than 1 day. If so, fetch the data
     */
-    private suspend fun isNeededToBeUpdated(
+    private fun isNeededToBeUpdated(
         forecastDay: ForecastDayDataModel,
         searchedLocationDataModel: SearchedLocationDataModel
     ): Boolean {
         val simpleDateFormat = SimpleDateFormat("dd", Locale.US)
-        val secondsInADay = 86_400L
+        simpleDateFormat.timeZone = TimeZone.getTimeZone(forecastDay.tzId)
+        val secondsInADay = 86_400_000L
 
-        val localInfo = forecastRemoteDataSource.getLocationInfo(searchedLocationDataModel)
+        val currentTimestamp = System.currentTimeMillis()
 
-        if (localInfo is ResultModel.Success) {
-            val internetData = localInfo.data
+        /*Log.d("IsNeeded", """
+            ${forecastDay.location} and ${searchedLocationDataModel.locationName}
+            ${forecastDay.lastUpdate * 1000L - currentTimestamp}
+            ${simpleDateFormat.format(forecastDay.lastUpdate * 1000L)} ${simpleDateFormat.format(currentTimestamp)}
+        """.trimIndent())*/
 
-            /*Log.d("IsNeeded", """
-                ${forecastDay.location} and ${internetData.name}
-                ${forecastDay.lastUpdate - internetData.lastUpdate}
-                ${getTimeString(simpleDateFormat, forecastDay.lastUpdate)} ${getTimeString(simpleDateFormat, internetData.lastUpdate)}
-            """.trimIndent())*/
+        return !(forecastDay.location == searchedLocationDataModel.locationName
+                && abs(forecastDay.lastUpdate * 1000L - currentTimestamp) < secondsInADay
+                && simpleDateFormat.format(forecastDay.lastUpdate * 1000L) == simpleDateFormat.format(currentTimestamp))
 
-            return !(forecastDay.location == internetData.name
-                    && abs(forecastDay.lastUpdate - internetData.lastUpdate) < secondsInADay
-                    && getTimeString(simpleDateFormat, forecastDay.lastUpdate) == getTimeString(simpleDateFormat, internetData.lastUpdate))
-        }
-        return false
     }
 
-    private fun getTimeString(format: SimpleDateFormat, time: Int): String {
+    private fun getTimeString(format: SimpleDateFormat, time: Long): String {
         return format.format(time * 1000L)
     }
 }

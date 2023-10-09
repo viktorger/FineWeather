@@ -3,6 +3,7 @@ package com.viktorger.fineweather.data.model
 data class ForecastDayDataModel(
     val date: String,
     val location: String,
+    val tzId: String,
     val lastUpdate: Int,
     val maxTempC: Int,
     val minTempC: Int,
@@ -11,13 +12,6 @@ data class ForecastDayDataModel(
     val condition: ConditionDataModel,
     val hour: List<HourDataModel>,
 )
-
-data class LocationDataModel (
-    val name: String,
-    val tzId: String,
-    val lastUpdate: Int
-)
-
 
 data class HourDataModel(
     val time: String,

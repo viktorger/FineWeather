@@ -103,6 +103,7 @@ class ForecastLocalDataSource @Inject constructor(
     private fun localDataToData(dayWithHours: DayWithHours) = ForecastDayDataModel(
         date = dayWithHours.day.date,
         location = dayWithHours.day.locationName,
+        tzId = dayWithHours.day.tzId,
         lastUpdate = dayWithHours.day.lastUpdate,
         maxTempC = dayWithHours.day.maxTempC,
         minTempC = dayWithHours.day.minTempC,
@@ -132,6 +133,7 @@ class ForecastLocalDataSource @Inject constructor(
                 day = day,
                 locationName = location,
                 lastUpdate = lastUpdate,
+                tzId = forecastDayDataModel.tzId,
                 date = date,
                 maxTempC = maxTempC,
                 minTempC = minTempC,
