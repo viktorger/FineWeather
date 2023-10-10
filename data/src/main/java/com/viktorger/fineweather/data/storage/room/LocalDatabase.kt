@@ -10,7 +10,11 @@ import com.viktorger.fineweather.data.storage.room.entities.HourEntity
 
 @Database(
     entities = [DayEntity::class, HourEntity::class],
-    version = 1,
+    version = 2,
+    exportSchema = true,
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2)
+    ]
 )
 abstract class LocalDatabase : RoomDatabase() {
     abstract fun dayDao(): DayDao

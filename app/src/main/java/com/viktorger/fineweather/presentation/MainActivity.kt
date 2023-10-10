@@ -36,9 +36,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    val requestPermissionLauncher = registerForActivityResult(
+    private val requestPermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
+        ) { _ ->
             vm.initVm()
         }
 

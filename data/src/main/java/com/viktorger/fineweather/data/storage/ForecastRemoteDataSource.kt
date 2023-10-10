@@ -147,6 +147,8 @@ class ForecastRemoteDataSource @Inject constructor(
 
         val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale.US)
         dateFormat.timeZone = TimeZone.getTimeZone(forecastResponse.location.tz_id)
+        Log.d("dayForecastResponseTOdata", forecastResponse.location.tz_id)
+        Log.d("dayForecastResponseTOdata", "${forecastResponse.forecast.forecastday[index].date_epoch} ${getTimeString(dateFormat, forecastResponse.forecast.forecastday[index].date_epoch)}")
 
         with(forecastResponse.forecast.forecastday[index]) {
             return ForecastDayDataModel(

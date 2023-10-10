@@ -1,0 +1,145 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "306e86d3500727c54ce3c8005b9c36aa",
+    "entities": [
+      {
+        "tableName": "day",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`day` INTEGER NOT NULL, `location_name` TEXT NOT NULL, `last_update` INTEGER NOT NULL, `date` TEXT NOT NULL, `maxtemp_c` INTEGER NOT NULL, `mintemp_c` INTEGER NOT NULL, `status` TEXT NOT NULL, `daily_chance_of_rain` REAL NOT NULL, `condition_text` TEXT NOT NULL, `condition_icon` TEXT NOT NULL, PRIMARY KEY(`day`))",
+        "fields": [
+          {
+            "fieldPath": "day",
+            "columnName": "day",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "locationName",
+            "columnName": "location_name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastUpdate",
+            "columnName": "last_update",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "maxTempC",
+            "columnName": "maxtemp_c",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "minTempC",
+            "columnName": "mintemp_c",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dailyChanceOfRain",
+            "columnName": "daily_chance_of_rain",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "conditionText",
+            "columnName": "condition_text",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "conditionIcon",
+            "columnName": "condition_icon",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "day"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "hour",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`time_epoch` INTEGER NOT NULL, `time` TEXT NOT NULL, `temp_c` INTEGER NOT NULL, ` chance_of_rain` REAL NOT NULL, `day` INTEGER NOT NULL, `condition_text` TEXT NOT NULL, `condition_icon` TEXT NOT NULL, PRIMARY KEY(`time`, `day`))",
+        "fields": [
+          {
+            "fieldPath": "timeEpoch",
+            "columnName": "time_epoch",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "time",
+            "columnName": "time",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tempC",
+            "columnName": "temp_c",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chanceOfRain",
+            "columnName": " chance_of_rain",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "day",
+            "columnName": "day",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "conditionText",
+            "columnName": "condition_text",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "conditionIcon",
+            "columnName": "condition_icon",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "time",
+            "day"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '306e86d3500727c54ce3c8005b9c36aa')"
+    ]
+  }
+}

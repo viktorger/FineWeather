@@ -12,12 +12,6 @@ interface ForecastApi {
         @Query("days") days: Int
     ): Response<ForecastResponse>
 
-    @GET("timezone.json")
-    suspend fun getLocationInfo(
-        @Query("key") key: String,
-        @Query("q", encoded = true) location: String
-    ): Response<LocationResponse>
-
     @GET("search.json")
     suspend fun getSearchedLocationList(
         @Query("key") key: String,
