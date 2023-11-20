@@ -68,12 +68,9 @@ class WeatherDetailsFragment : Fragment() {
                         binding.tvDetailsStatus.text = "${forecastDay.status}\u00B0C"
                     }
 
-                    binding.tvDetailsMinmax.text = "min ${forecastDay.minTempC}°C • max ${forecastDay.maxTempC.toInt()}°C "
+                    binding.tvDetailsMinmax.text = "min ${forecastDay.minTempC}°C • max ${forecastDay.maxTempC}°C"
 
                     binding.tvDetailsDate.text = forecastDay.date
-                    Glide.with(this)
-                        .load(forecastDay.condition.icon)
-                        .into(binding.imageView)
 
                     if (forecastDay.hour.isNotEmpty()) {
                         binding.linechartDetails.setTempTimeSource(
@@ -105,6 +102,14 @@ class WeatherDetailsFragment : Fragment() {
 
             binding.srlDetails.setOnRefreshListener {
                 vm.updateForecast(it, args.day)
+            }
+        }
+
+        vm.imageLiveData.observe(viewLifecycleOwner) {
+            if (it is ResultModel.Success) {
+                Glide.with(this)
+                    .load(it.data)
+                    .into(binding.imageView)
             }
         }
     }

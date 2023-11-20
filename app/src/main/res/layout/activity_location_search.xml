@@ -61,6 +61,7 @@
         android:id="@+id/rv_search"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        tools:listitem="@layout/item_searched_location"
 
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintStart_toStartOf="parent"

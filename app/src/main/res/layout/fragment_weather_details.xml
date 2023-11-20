@@ -116,6 +116,35 @@
 
                 </HorizontalScrollView>
 
+                <TextView
+                    android:id="@+id/tv_details_changeicon"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+
+                    android:text="In case you didn't like the weather icon, replace it with image of yours"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/hsv_details_linechart"/>
+
+                <EditText
+                    android:id="@+id/et_details_changeicon"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:drawableStart="@drawable/ic_download"
+                    android:drawablePadding="5dp"
+                    android:padding="10dp"
+                    android:background="@drawable/shape_search_edittext"
+                    android:imeOptions="actionDone"
+
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_details_changeicon" />
+
+
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>

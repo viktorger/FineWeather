@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.viktorger.fineweather.domain.model.ForecastDayModel
 import com.viktorger.fineweather.domain.model.ResultModel
 import com.viktorger.fineweather.domain.model.SearchedLocationModel
+import com.viktorger.fineweather.domain.usecase.GetImagePathUseCase
 import com.viktorger.fineweather.domain.usecase.GetWeatherTodayUseCase
 import com.viktorger.fineweather.domain.usecase.GetWeatherTomorrowUseCase
 import com.viktorger.fineweather.presentation.model.DayEnum
@@ -18,14 +19,19 @@ import kotlinx.coroutines.launch
 
 class WeatherDetailsViewModel(
     private val getWeatherTodayUseCase: GetWeatherTodayUseCase,
-    private val getWeatherTomorrowUseCase: GetWeatherTomorrowUseCase
+    private val getWeatherTomorrowUseCase: GetWeatherTomorrowUseCase,
+    private val getImagePathUseCase: GetImagePathUseCase
 ) : ViewModel() {
 
     private val defaultDispatcher = Dispatchers.Default
     private val _dayForecastLiveData = MutableLiveData<ResultModel<ForecastDayModel>>()
     val dayForecastLiveData: LiveData<ResultModel<ForecastDayModel>> = _dayForecastLiveData
 
+    private val _imageLiveData = MutableLiveData<ResultModel<String>>()
+    val imageLiveData: LiveData<ResultModel<String>> = _imageLiveData
+
     private var fetchJob: Job? = null
+    private var imageJob: Job? = null
 
     private fun getForecast(
         locationModel: SearchedLocationModel,
@@ -37,13 +43,22 @@ class WeatherDetailsViewModel(
         fetchJob = viewModelScope.launch(defaultDispatcher) {
             when (dayEnum) {
                 DayEnum.Today -> getWeatherTodayUseCase(locationModel, forceUpdate).collect {
-                    _dayForecastLiveData.postValue(it)
+                    collectionAction(it)
                 }
 
                 else -> getWeatherTomorrowUseCase(locationModel, forceUpdate).collect {
-                    _dayForecastLiveData.postValue(it)
+                    collectionAction(it)
                 }
             }
+        }
+    }
+
+    private suspend fun collectionAction(resultModel: ResultModel<ForecastDayModel>) {
+        _dayForecastLiveData.postValue(resultModel)
+
+        if (resultModel is ResultModel.Success) {
+            val path = getImagePathUseCase(resultModel.data.condition.icon)
+            _imageLiveData.postValue(path)
         }
     }
 

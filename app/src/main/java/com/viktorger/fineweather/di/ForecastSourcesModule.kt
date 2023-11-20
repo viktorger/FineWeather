@@ -18,12 +18,12 @@ class ForecastSourcesModule {
     @Singleton
     @Provides
     fun provideForecastApi(): ForecastApi {
-        val interceptor = HttpLoggingInterceptor()
+        /*val interceptor = HttpLoggingInterceptor()
         interceptor.level = HttpLoggingInterceptor.Level.BODY
 
         val okHttpClient = OkHttpClient.Builder()
             .addInterceptor(interceptor)
-            .build()
+            .build()*/
 
 
         val forecastApi = Retrofit.Builder()
