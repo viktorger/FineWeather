@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -50,6 +51,18 @@ class WeatherDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObservers()
+        initListeners()
+    }
+
+    private fun initListeners() {
+        binding.etDetailsChangeicon.setOnEditorActionListener { textView, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                vm.setImageUrl(textView.text.toString())
+                true
+            } else {
+                false
+            }
+        }
     }
 
     private fun initObservers() {
@@ -106,10 +119,14 @@ class WeatherDetailsFragment : Fragment() {
         }
 
         vm.imageLiveData.observe(viewLifecycleOwner) {
-            if (it is ResultModel.Success) {
-                Glide.with(this)
+            when (it) {
+                is ResultModel.Success -> Glide.with(this)
                     .load(it.data)
                     .into(binding.imageView)
+                is ResultModel.Loading -> { }
+                is ResultModel.Error -> {
+                    Toast.makeText(requireContext(), it.message, Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }

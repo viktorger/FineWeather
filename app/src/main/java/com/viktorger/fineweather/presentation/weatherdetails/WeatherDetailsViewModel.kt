@@ -56,9 +56,12 @@ class WeatherDetailsViewModel(
     private suspend fun collectionAction(resultModel: ResultModel<ForecastDayModel>) {
         _dayForecastLiveData.postValue(resultModel)
 
-        if (resultModel is ResultModel.Success) {
-            val path = getImagePathUseCase(resultModel.data.condition.icon)
-            _imageLiveData.postValue(path)
+        imageJob?.cancel()
+        imageJob = viewModelScope.launch(defaultDispatcher) {
+            if (resultModel is ResultModel.Success) {
+                val path = getImagePathUseCase(resultModel.data.condition.icon)
+                _imageLiveData.postValue(path)
+            }
         }
     }
 
@@ -68,6 +71,15 @@ class WeatherDetailsViewModel(
     }
     fun updateForecast(locationModel: SearchedLocationModel, dayEnum: DayEnum) {
         getForecast(locationModel, dayEnum, true)
+    }
+
+    fun setImageUrl(url: String) {
+        imageJob?.cancel()
+        imageJob = viewModelScope.launch(defaultDispatcher) {
+            val path = getImagePathUseCase(url)
+            _imageLiveData.postValue(path)
+        }
+
     }
 
 }

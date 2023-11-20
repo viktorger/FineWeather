@@ -11,7 +11,7 @@ class ImageRemoteDataSource @Inject constructor(
     private val okHttpClient: OkHttpClient
 ) {
 
-    suspend fun downloadImageByUrl(url: String): ResultModel<Bitmap> = try {
+    fun downloadImageByUrl(url: String): ResultModel<Bitmap> = try {
 
         val request = Request.Builder().url(url).build()
         val response = okHttpClient.newCall(request).execute()
