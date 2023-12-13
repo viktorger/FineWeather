@@ -17,9 +17,7 @@ class LocationRepositoryImpl @Inject constructor(
 
     override suspend fun getSearchedLocationList(query: String)
     : ResultModel<List<SearchedLocationModel>> {
-        val networkResult = locationRemoteDataSource.getSearchedLocationList(query)
-
-        return when (networkResult) {
+        return when (val networkResult = locationRemoteDataSource.getSearchedLocationList(query)) {
             is ResultModel.Success -> {
                 ResultModel.Success(
                     networkResult.data.map { locationToDomain(it) }

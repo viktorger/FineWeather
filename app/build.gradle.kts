@@ -66,6 +66,7 @@ dependencies {
 
     // Dagger
     implementation(libs.dagger)
+    implementation(libs.androidx.work.runtime.ktx)
     kapt(libs.dagger.compiler)
 
     // UI

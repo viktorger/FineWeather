@@ -2,6 +2,7 @@ package com.viktorger.fineweather.presentation
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -12,6 +13,10 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.viktorger.fineweather.databinding.ActivityMainBinding
 import com.google.android.material.tabs.TabLayout
 import com.viktorger.fineweather.MainGraphDirections
@@ -19,6 +24,8 @@ import com.viktorger.fineweather.R
 import com.viktorger.fineweather.app.MyApplication
 import com.viktorger.fineweather.presentation.model.DayEnum
 import com.viktorger.fineweather.presentation.model.LocationSearchContract
+import com.viktorger.fineweather.presentation.model.NotificationWorker
+import java.time.Duration
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
@@ -129,6 +136,17 @@ class MainActivity : AppCompatActivity() {
     private fun initSearchableEditText() {
         binding.etMainSearch.setOnClickListener {
             searchActivityLauncher.launch(null)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
+                .setInitialDelay(Duration.ofSeconds(5))
+                .build()
+            WorkManager.getInstance(this).enqueue(workRequest)
         }
     }
 }
