@@ -30,14 +30,14 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed"
-            tools:text="25 Sep" />
+            tools:text="@string/date_example" />
 
         <TextView
             android:id="@+id/tv_itemdaily_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="16sp"
-            tools:text="Good"
+            tools:text="@string/status_example"
 
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -73,7 +73,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_chainStyle="packed"
-                tools:text="18°C" />
+                tools:text="@string/temperature_example" />
 
             <TextView
                 android:id="@+id/tv_itemdaily_mintemp"
@@ -84,7 +84,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_itemdaily_maxtemp"
-                tools:text="5°C" />
+                tools:text="@string/temperature_example" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 

@@ -23,7 +23,7 @@
             android:drawableStart="@drawable/ic_search"
             android:drawablePadding="5dp"
             android:imeOptions="actionSearch"
-            android:hint="Location"
+            android:hint="@string/hint_location"
             android:textColor="@color/black"
             android:focusable="false"
 
@@ -46,17 +46,17 @@
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Today" />
+                android:text="@string/first_tab" />
 
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tommorow" />
+                android:text="@string/second_tab" />
 
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="10 days" />
+                android:text="@string/third_tab" />
         </com.google.android.material.tabs.TabLayout>
 
     </com.google.android.material.appbar.AppBarLayout>

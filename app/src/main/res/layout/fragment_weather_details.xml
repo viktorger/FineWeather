@@ -54,7 +54,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="20dp"
                         android:layout_marginTop="16dp"
-                        tools:text="August 29, 0:03"
+                        tools:text="@string/date_time_example"
                         android:textSize="16sp"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -65,7 +65,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="20dp"
                         android:layout_marginTop="16dp"
-                        tools:text="min 12°C • max 18°C"
+                        tools:text="@string/temp_min_max"
                         android:textSize="16sp"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/tv_details_date" />
@@ -76,7 +76,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="20dp"
                         android:layout_marginTop="8dp"
-                        tools:text="18\u00B0C"
+                        tools:text="@string/temperature_example"
                         android:textSize="80sp"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/tv_details_minmax" />
@@ -124,7 +124,7 @@
                     android:layout_marginEnd="20dp"
                     android:layout_marginTop="20dp"
 
-                    android:text="In case you didn't like the weather icon, replace it with the image of yours"
+                    android:text="@string/change_weather_icon"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/hsv_details_linechart"/>

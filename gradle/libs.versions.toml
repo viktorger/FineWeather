@@ -1,6 +1,6 @@
 [versions]
 activity-ktx = "1.8.0"
-agp = "8.3.0-alpha03"
+agp = "8.3.0-beta02"
 dagger = "2.48.1"
 fragment-ktx = "1.6.1"
 glide = "4.16.0"

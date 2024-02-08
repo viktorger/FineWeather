@@ -24,12 +24,6 @@
             android:defaultValue="Nothing" />
     </fragment>
 
-    <fragment
-        android:id="@+id/locationSearchFragment"
-        android:name="com.viktorger.fineweather.presentation.search.LocationSearchFragment"
-        android:label="fragment_location_search"
-        tools:layout="@layout/fragment_location_search" />
-
     <action
         android:id="@+id/action_global_weatherDetailsFragment"
         app:destination="@id/weatherDetailsFragment">
